@@ -11,10 +11,11 @@ AMovingPlatform::AMovingPlatform()
 
 }
 
-void MyTestFunction()
+void MyTestFunction(float MyFloatParam, FString MyStringParam)
 {
 	
-	UE_LOG(LogTemp, Display, TEXT("This is a test function message"));
+	UE_LOG(LogTemp, Display, TEXT("My float param is %f"), MyFloatParam);
+	UE_LOG(LogTemp, Display, TEXT("My Text param is %s"), *MyStringParam);
 
 
 }
@@ -27,6 +28,9 @@ void AMovingPlatform::BeginPlay()
 	Super::BeginPlay();
 
 
+	FString MyName = GetName();
+
+	MyTestFunction(3.5f, MyName);
 
 }
 
