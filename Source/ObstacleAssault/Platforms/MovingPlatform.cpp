@@ -11,17 +11,6 @@ AMovingPlatform::AMovingPlatform()
 
 }
 
-void MyTestFunction(float MyFloatParam, FString MyStringParam)
-{
-	
-	UE_LOG(LogTemp, Display, TEXT("My float param is %f"), MyFloatParam);
-	UE_LOG(LogTemp, Display, TEXT("My Text param is %s"), *MyStringParam);
-
-
-}
-
-
-
 // Called when the game starts or when spawned
 void AMovingPlatform::BeginPlay()
 {
@@ -31,8 +20,6 @@ void AMovingPlatform::BeginPlay()
 	FString MyName = GetName();
 
 	StartLocation = GetActorLocation();
-
-	MyTestFunction(3.5f, MyName);
 
 }
 
@@ -59,8 +46,14 @@ void AMovingPlatform::MovePlatform(float DeltaTime)
 
 	if (DistanceMoved >= MoveDistance) 
 	{
+		FVector MoveDirection = PlatformVelocity.GetSafeNormal();
+		FVector NewStartLocation = StartLocation + (MoveDirection * MoveDistance);
+		SetActorLocation(NewStartLocation);
+		StartLocation = NewStartLocation;
+
 		PlatformVelocity = -PlatformVelocity;
-		StartLocation = CurrentLocation;
+
+
 	}
 
 }
