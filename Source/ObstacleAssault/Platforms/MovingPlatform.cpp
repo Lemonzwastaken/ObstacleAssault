@@ -30,6 +30,8 @@ void AMovingPlatform::BeginPlay()
 
 	FString MyName = GetName();
 
+	StartLocation = GetActorLocation();
+
 	MyTestFunction(3.5f, MyName);
 
 }
@@ -39,13 +41,25 @@ void AMovingPlatform::Tick(float DeltaTime)
 {
 
 	Super::Tick(DeltaTime);
-	
 
-
-	FVector CurrentLocation = GetActorLocation();
-	CurrentLocation = CurrentLocation + (PlatformVelocity * DeltaTime); 
-	SetActorLocation(CurrentLocation);
-
+	MovePlatform(DeltaTime);
+	RotatePlatform(DeltaTime);
 
 }
 
+//Platform Movement
+void AMovingPlatform::MovePlatform(float DeltaTime)
+{
+	// Moves the platform by a set velocity in Delta Time
+	FVector CurrentLocation = GetActorLocation();
+	CurrentLocation = CurrentLocation + (PlatformVelocity * DeltaTime);
+	SetActorLocation(CurrentLocation);
+
+	DistanceMoved = FVector::Dist(StartLocation, CurrentLocation);
+
+}
+
+void AMovingPlatform::RotatePlatform(float DeltaTime)
+{
+	//Rotates platform by delta time
+}
