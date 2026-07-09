@@ -11,10 +11,21 @@ AMovingPlatform::AMovingPlatform()
 
 }
 
+void MyTestFunction()
+{
+	
+	UE_LOG(LogTemp, Display, TEXT("This is a test function message"));
+
+
+}
+
+
+
 // Called when the game starts or when spawned
 void AMovingPlatform::BeginPlay()
 {
 	Super::BeginPlay();
+
 
 
 }
@@ -26,11 +37,9 @@ void AMovingPlatform::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	
 
-	//Im moving this platform by one unit in each direction
+
 	FVector CurrentLocation = GetActorLocation();
-
-	CurrentLocation.X = CurrentLocation.X + 1;
-
+	CurrentLocation = CurrentLocation + (PlatformVelocity * DeltaTime); 
 	SetActorLocation(CurrentLocation);
 
 

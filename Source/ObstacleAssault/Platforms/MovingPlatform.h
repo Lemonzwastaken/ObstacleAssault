@@ -16,6 +16,7 @@ public:
 	// Sets default values for this actor's properties
 	AMovingPlatform();
 
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -24,13 +25,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere)
-	float MemberFloat = 10.0f; 
-	
-	UPROPERTY(VisibleAnywhere)
-	int MemberInt = 20;
 
 	UPROPERTY(EditAnywhere)
-	FVector MemberVector = FVector(10.4f, 24.4f, 15.2f);
+	FVector PlatformVelocity = FVector(0.0f, 0.0f, 0.0f);
 
 };
