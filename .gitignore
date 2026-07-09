@@ -82,9 +82,15 @@ CrashReports/
 # Perforce / other VCS leftovers (optional, uncomment if needed)
 # *.p4ignore
 
+# ---------------------------------
+# Content folder: only track Blueprints
+# ---------------------------------
+Content/*
+!Content/Blueprints/
+
 # NOT ignoring:
 # Config/
-# Content/
+# Content/Blueprints/
 # Source/
 # *.uproject
 # *.uplugin
@@ -93,5 +99,3 @@ CrashReports/
 Saved/Config/Windows/
 Saved/Config/Mac/
 Saved/Config/Linux/
-Content/*
-!Content/Blueprints/
