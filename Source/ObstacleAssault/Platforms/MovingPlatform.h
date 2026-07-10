@@ -31,18 +31,20 @@ public:
 	float GetDistanceMoved();
 
 
-
+	// Movement Variables
 	UPROPERTY(VisibleAnywhere)
 	float DistanceMoved = 0.0f;
 
 	UPROPERTY(EditAnywhere)
 	float MoveDistance = 100.0f;
 
-
-
 	FVector StartLocation;
 
 	UPROPERTY(EditAnywhere)
 	FVector PlatformVelocity = FVector(0.0f, 0.0f, 0.0f);
+
+	UPROPERTY(EditAnywhere)
+	FRotator RotationVelocity;
+
 
 };

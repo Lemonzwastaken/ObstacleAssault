@@ -11,14 +11,6 @@ AMovingPlatform::AMovingPlatform()
 
 }
 
-int MyTestFunction()
-{
-	int TestVariable = 40 * 2;
-	return TestVariable;
-}
-
-
-
 // Called when the game starts or when spawned
 void AMovingPlatform::BeginPlay()
 {
@@ -26,12 +18,6 @@ void AMovingPlatform::BeginPlay()
 
 	//Get Start Location
 	StartLocation = GetActorLocation();
-
-	int ReturnValue = MyTestFunction();
-
-	UE_LOG(LogTemp, Display, TEXT("My return value is: %d"), ReturnValue);
-
-
 }
 
 // Called every frame
@@ -79,4 +65,9 @@ void AMovingPlatform::MovePlatform(float DeltaTime)
 void AMovingPlatform::RotatePlatform(float DeltaTime)
 {
 	//Rotates platform by delta time
+
+	FRotator RotationToAdd = RotationVelocity * DeltaTime;
+	AddActorLocalRotation(RotationVelocity);
+
+
 }
