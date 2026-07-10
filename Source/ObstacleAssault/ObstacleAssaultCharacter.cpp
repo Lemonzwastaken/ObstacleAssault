@@ -11,8 +11,10 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "ObstacleAssault.h"
+#include "CustomCharacterMovementComponent.h"
 
-AObstacleAssaultCharacter::AObstacleAssaultCharacter()
+AObstacleAssaultCharacter::AObstacleAssaultCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UCustomCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);

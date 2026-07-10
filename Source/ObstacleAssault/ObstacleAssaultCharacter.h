@@ -52,7 +52,7 @@ protected:
 public:
 
 	/** Constructor */
-	AObstacleAssaultCharacter();	
+	AObstacleAssaultCharacter(const FObjectInitializer& ObjectInitializer);
 
 protected:
 
