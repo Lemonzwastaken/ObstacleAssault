@@ -17,8 +17,19 @@ class OBSTACLEASSAULT_API UCustomCharacterMovementComponent : public UCharacterM
 public:
 	virtual void BeginPlay() override;
 
+
+private:
+
+	UPROPERTY(Transient)
+	TWeakObjectPtr<AActor> PrevNonWallRunnableActor{ nullptr };
+
+
+
 protected:
+	
 	UFUNCTION()
 	virtual void OnCapsuleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	
+	bool CanWallRun() const;
+
 };
