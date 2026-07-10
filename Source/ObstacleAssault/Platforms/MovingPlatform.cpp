@@ -11,15 +11,26 @@ AMovingPlatform::AMovingPlatform()
 
 }
 
+int MyTestFunction()
+{
+	int TestVariable = 40 * 2;
+	return TestVariable;
+}
+
+
+
 // Called when the game starts or when spawned
 void AMovingPlatform::BeginPlay()
 {
 	Super::BeginPlay();
 
-
-	FString MyName = GetName();
-
+	//Get Start Location
 	StartLocation = GetActorLocation();
+
+	int ReturnValue = MyTestFunction();
+
+	UE_LOG(LogTemp, Display, TEXT("My return value is: %d"), ReturnValue);
+
 
 }
 
@@ -34,15 +45,19 @@ void AMovingPlatform::Tick(float DeltaTime)
 
 }
 
+
 //Platform Movement
+
+float AMovingPlatform::GetDistanceMoved()
+{
+	return FVector::Dist(StartLocation, GetActorLocation());
+}
+
+
 void AMovingPlatform::MovePlatform(float DeltaTime)
 {
 	// Moves the platform by a set velocity in Delta Time
-	FVector CurrentLocation = GetActorLocation();
-	CurrentLocation = CurrentLocation + (PlatformVelocity * DeltaTime);
-	SetActorLocation(CurrentLocation);
-
-	DistanceMoved = FVector::Dist(StartLocation, CurrentLocation);
+	DistanceMoved = GetDistanceMoved();
 
 	if (DistanceMoved >= MoveDistance) 
 	{
@@ -52,12 +67,15 @@ void AMovingPlatform::MovePlatform(float DeltaTime)
 		StartLocation = NewStartLocation;
 
 		PlatformVelocity = -PlatformVelocity;
-
-
+	}
+	else 
+	{
+		FVector CurrentLocation = GetActorLocation();
+		CurrentLocation = CurrentLocation + (PlatformVelocity * DeltaTime);
+		SetActorLocation(CurrentLocation);
 	}
 
 }
-
 void AMovingPlatform::RotatePlatform(float DeltaTime)
 {
 	//Rotates platform by delta time

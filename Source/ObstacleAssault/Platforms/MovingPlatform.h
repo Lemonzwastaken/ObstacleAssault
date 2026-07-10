@@ -28,6 +28,9 @@ public:
 	//Platform Movement
 	void MovePlatform(float DeltaTime);
 	void RotatePlatform(float DeltaTime);
+	float GetDistanceMoved();
+
+
 
 	UPROPERTY(VisibleAnywhere)
 	float DistanceMoved = 0.0f;
@@ -35,8 +38,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	float MoveDistance = 100.0f;
 
-	FVector StartLocation;
 
+
+	FVector StartLocation;
 
 	UPROPERTY(EditAnywhere)
 	FVector PlatformVelocity = FVector(0.0f, 0.0f, 0.0f);
