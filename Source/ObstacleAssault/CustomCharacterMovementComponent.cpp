@@ -18,9 +18,21 @@ void UCustomCharacterMovementComponent::BeginPlay()
 	PrevNonWallRunnableActor = nullptr;
 }
 
+void UCustomCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	WallRunControlInputVector = {};
+}
+
 void UCustomCharacterMovementComponent::AddInputVector(FVector WorldVector, bool bForce)
 {
-	if (!IsWallRunning())
+	if (IsWallRunning())
+	{
+		WallRunControlInputVector = WorldVector;
+
+	}
+	else
 	{
 		Super::AddInputVector(WorldVector, bForce);
 	}
@@ -40,6 +52,15 @@ bool UCustomCharacterMovementComponent::CanAttemptJump() const
 
 	return Super::CanAttemptJump();
 }
+
+
+void UCustomCharacterMovementComponent::WallRunStart()
+{
+	if (bAutoWallRun) return;
+
+	bWantsToWallRun = true;
+}
+
 
 void UCustomCharacterMovementComponent::OnCapsuleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -68,6 +89,7 @@ bool UCustomCharacterMovementComponent::CanWallRun() const
 
 void UCustomCharacterMovementComponent::InitWallRun()
 {
+	WallRunControlInputVector = {};
 	bWallRunInitiated = false;
 	bIsTurningAroundCorner = false;
 
@@ -206,11 +228,25 @@ void UCustomCharacterMovementComponent::OnMovementModeChanged(EMovementMode Prev
 void UCustomCharacterMovementComponent::HandleWallRunCorner()
 {
 
-	bIsTurningAroundCorner = true;
-
-
 	FRotator TargetRotation{};
 	CalcWallRunRotation(TargetRotation);
+
+	const FVector CornerTurnDirection = FRotationMatrix(TargetRotation).GetUnitAxis(EAxis::X);
+	const bool bPlayerWantsToTurn = FVector::DotProduct(CornerTurnDirection, WallRunControlInputVector) > 0.0f;
+
+	if (bPlayerWantsToTurn)
+	{
+
+		bIsTurningAroundCorner = true;
+		const FVector TargetLocation = WallRunHitResult.ImpactPoint + WallRunHitResult.ImpactNormal * CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleRadius();
+
+		const FLatentActionInfo LatentActionInfo{ 0, INDEX_NONE, TEXT("OnTurnedAroundCorner"), this };
+		UKismetSystemLibrary::MoveComponentTo(CharacterOwner->GetCapsuleComponent(), TargetLocation, TargetRotation, true, true, WallRunCornerTurnDuration, true, EMoveComponentAction::Move, LatentActionInfo);
+	}
+	else
+	{
+		SetMovementMode(EMovementMode::MOVE_Falling);
+	}
 
 	const FVector TargetLocation = WallRunHitResult.ImpactPoint + WallRunHitResult.ImpactNormal * CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleRadius();
 

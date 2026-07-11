@@ -30,17 +30,33 @@ public:
 
 	virtual void BeginPlay() override;
 
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 	virtual void AddInputVector(FVector WorldVector, bool bForce = false) override;
 
 	bool IsWallRunning() const;
 
 	virtual bool CanAttemptJump() const override;
 
+	void WallRunStart();
+
+	void WallRunStop();
+
+
+
 private:
 
 	bool bWallRunInitiated = false;
 
 	FHitResult WallRunHitResult{};
+
+	FVector WallRunControlInputVector{};
+
+	bool bWantsToWallRun = false;
+
+
+	UPROPERTY(EditAnywhere, Category = Movement, meta = (DisplayName = "Auto wall run"));
+	bool bAutoWallRun = true;
 
 	UPROPERTY(Transient)
 	TWeakObjectPtr<AActor> PrevNonWallRunnableActor{ nullptr };
@@ -49,7 +65,7 @@ private:
 
 	double WallSearchTraceDistance = 0.0f;
 
-	UPROPERTY(EditAnywhere, Category = Movement, meta = (DisplayName = "Wall Run Interpolation Speed"))
+	UPROPERTY(EditAnywhere, Category = Movement, meta = (DisplayName = "Wall Run Rotation Speed"));
 	float WallRunRotationInterpSpeed = 5.0f;
 
 	UPROPERTY(EditAnywhere, Category = Movement, meta = (DisplayName = "Wall Run Speed"))
