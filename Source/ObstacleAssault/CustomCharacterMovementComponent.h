@@ -45,16 +45,21 @@ private:
 	UPROPERTY(Transient)
 	TWeakObjectPtr<AActor> PrevNonWallRunnableActor{ nullptr };
 
+	FTimerHandle WallRunCoolDownTimer;
+
+
 	EWallRunSide WallRunSide{ EWRS_None };
 
 	double WallSearchTraceDistance = 0.0f;
-
 
 	UPROPERTY(EditAnywhere, Category = Movement, meta = (DisplayName = "Wall Run Interpolation Speed"))
 	float WallRunRotationInterpSpeed = 5.0f;
 
 	UPROPERTY(EditAnywhere, Category = Movement, meta = (DisplayName = "Wall Run Speed"))
 	float WallRunSpeed = 550.0f;
+
+	UPROPERTY(EditAnywhere, Category = Movement, meta = (DisplayName = "Wall Run Cooldown Duration"))
+	float WallRunCoolDownDuration = 0.7f;
 
 
 protected:
@@ -75,6 +80,6 @@ protected:
 
 	virtual void PhysWallRunning(float deltatime, int32 Iterations);
 
-
+	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 
 };

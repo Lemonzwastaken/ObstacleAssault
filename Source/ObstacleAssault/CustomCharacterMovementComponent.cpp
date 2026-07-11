@@ -61,7 +61,9 @@ void UCustomCharacterMovementComponent::OnCapsuleHit(UPrimitiveComponent* HitCom
 
 bool UCustomCharacterMovementComponent::CanWallRun() const
 {
-	return IsFalling();
+
+	return IsFalling() && !(GetWorld()->GetTimerManager().IsTimerActive(WallRunCoolDownTimer));
+
 }
 
 void UCustomCharacterMovementComponent::InitWallRun()
@@ -155,5 +157,15 @@ void UCustomCharacterMovementComponent::PhysWallRunning(float deltatime, int32 I
 	else
 	{
 		SetMovementMode(EMovementMode::MOVE_Falling);
+	}
+}
+
+void UCustomCharacterMovementComponent::OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode)
+{
+	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);
+	
+	if (PreviousCustomMode == EMovementMode::MOVE_Custom && PreviousCustomMode == CMOVE_WallRunning)
+	{
+		GetWorld()->GetTimerManager().SetTimer(WallRunCoolDownTimer, WallRunCoolDownDuration, false);
 	}
 }
