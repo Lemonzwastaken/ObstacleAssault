@@ -169,7 +169,7 @@ void UCustomCharacterMovementComponent::PhysWallRunning(float deltatime, int32 I
 
 	if (WallRunHitResult.bBlockingHit)
 	{
-		HandleWallRunCorner();
+		HandleWallRunCorner(ECT_Inner);
 		return;
 	}
 
@@ -220,7 +220,7 @@ void UCustomCharacterMovementComponent::PhysWallRunning(float deltatime, int32 I
 
 	if (WallRunHitResult.bBlockingHit)
 	{
-		HandleWallRunCorner();
+		HandleWallRunCorner(ECT_Outer);
 		return;
 	}
 
@@ -239,7 +239,7 @@ void UCustomCharacterMovementComponent::OnMovementModeChanged(EMovementMode Prev
 	}
 }
 
-void UCustomCharacterMovementComponent::HandleWallRunCorner()
+void UCustomCharacterMovementComponent::HandleWallRunCorner(const ECornerType CornerType)
 {
 
 	FRotator TargetRotation{};
@@ -250,8 +250,9 @@ void UCustomCharacterMovementComponent::HandleWallRunCorner()
 
 	if (bPlayerWantsToTurn)
 	{
-
 		bIsTurningAroundCorner = true;
+		OnCornerTurnBegin.ExecuteIfBound(CornerTurnDirection, CornerType);
+
 		const FVector TargetLocation = WallRunHitResult.ImpactPoint + WallRunHitResult.ImpactNormal * CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleRadius();
 
 		const FLatentActionInfo LatentActionInfo{ 0, INDEX_NONE, TEXT("OnTurnedAroundCorner"), this };
@@ -271,4 +272,6 @@ void UCustomCharacterMovementComponent::HandleWallRunCorner()
 void UCustomCharacterMovementComponent::OnTurnedAroundCorner()
 {
 	bIsTurningAroundCorner = false;
+	OnCornerTurnEnd.ExecuteIfBound();
+
 }

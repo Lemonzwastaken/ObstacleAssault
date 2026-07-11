@@ -11,6 +11,8 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
 struct FInputActionValue;
+enum ECornerType : uint8;
+
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -22,6 +24,8 @@ UCLASS(abstract)
 class AObstacleAssaultCharacter : public ACharacter
 {
 	GENERATED_BODY()
+
+	FRotator TargetCameraRotation{};
 
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
@@ -48,6 +52,13 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* LookAction;
 
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	float CameraLockOnInterpSpeed = 7.0f;
+
+
+	bool bCameraLockOnActive = false;
+
 	/** Mouse Look Input Action */
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* MouseLookAction;
@@ -57,6 +68,13 @@ public:
 	/** Constructor */
 	AObstacleAssaultCharacter(const FObjectInitializer& ObjectInitializer);
 
+	virtual void PostInitializeComponents() override; 
+
+	class UCustomCharacterMovementComponent* GetCustomCharacterMovement() const;
+
+	virtual void Tick(float Deltatime) override;
+
+
 protected:
 
 	/** Initialize input action bindings */
@@ -64,11 +82,18 @@ protected:
 
 protected:
 
+	virtual void BeginPlay() override;
+
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
+
+	virtual void OnCornerTurnBegin(const FVector& CornerTurnDirection, const ECornerType CornerType);
+
+	virtual void OnCornerTurnEnd();
+
 
 public:
 

@@ -18,7 +18,7 @@ AObstacleAssaultCharacter::AObstacleAssaultCharacter(const FObjectInitializer& O
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
-		
+
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
@@ -52,11 +52,38 @@ AObstacleAssaultCharacter::AObstacleAssaultCharacter(const FObjectInitializer& O
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 }
 
+UCustomCharacterMovementComponent* AObstacleAssaultCharacter::GetCustomCharacterMovement() const
+{
+	return Cast<UCustomCharacterMovementComponent>(GetCharacterMovement());
+}
+
+void AObstacleAssaultCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (UCustomCharacterMovementComponent* const CustomCharacterMovementComponent = GetCustomCharacterMovement())
+	{
+		CustomCharacterMovementComponent->OnCornerTurnBegin.BindUObject(this, &AObstacleAssaultCharacter::OnCornerTurnBegin);
+		CustomCharacterMovementComponent->OnCornerTurnEnd.BindUObject(this, &AObstacleAssaultCharacter::OnCornerTurnEnd);
+	}
+}
+
+void AObstacleAssaultCharacter::Tick(float Deltatime)
+{
+	Super::Tick(Deltatime);
+
+	if (bCameraLockOnActive)
+	{
+		const FRotator InterpedTargetRotation = FMath::RInterpTo(GetControlRotation(), TargetCameraRotation, Deltatime, CameraLockOnInterpSpeed);
+		GetController()->SetControlRotation(InterpedTargetRotation);
+	}
+}
+
 void AObstacleAssaultCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
-		
+
 		// Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
@@ -82,6 +109,13 @@ void AObstacleAssaultCharacter::SetupPlayerInputComponent(UInputComponent* Playe
 	}
 }
 
+void AObstacleAssaultCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	bCameraLockOnActive = false;
+}
+
 void AObstacleAssaultCharacter::Move(const FInputActionValue& Value)
 {
 	// input is a Vector2D
@@ -98,6 +132,34 @@ void AObstacleAssaultCharacter::Look(const FInputActionValue& Value)
 
 	// route the input
 	DoLook(LookAxisVector.X, LookAxisVector.Y);
+}
+
+void AObstacleAssaultCharacter::OnCornerTurnBegin(const FVector& CornerTurnDirection, const ECornerType CornerType)
+{
+	if (CornerType == ECT_Outer)
+	{
+		TargetCameraRotation = CornerTurnDirection.Rotation();
+
+		constexpr double TargetCameraRortationOffset = 45.0f;
+
+		const bool bLeftTurn = FVector::DotProduct(GetActorRightVector(), CornerTurnDirection) < 0.0;
+
+		if (bLeftTurn)
+		{
+			TargetCameraRotation.Yaw -= TargetCameraRortationOffset;
+		}
+		else
+		{
+			TargetCameraRotation.Yaw += TargetCameraRortationOffset;
+		}
+
+		bCameraLockOnActive = true;
+	}
+}
+
+void AObstacleAssaultCharacter::OnCornerTurnEnd()
+{
+	bCameraLockOnActive = false;
 }
 
 void AObstacleAssaultCharacter::DoMove(float Right, float Forward)

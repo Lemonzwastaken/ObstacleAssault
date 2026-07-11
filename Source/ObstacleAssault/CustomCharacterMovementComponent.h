@@ -17,9 +17,22 @@ enum EWallRunSide : uint8
 	EWRS_MAX	   UMETA(Hidden),
 };
 
+enum ECornerType : uint8
+{
+	ECT_Inner	UMETA(DisplayName = "Inner"),
+	ECT_Outer	UMETA(DisplayName = "Outer"),
+
+	ECT_MAX		UMETA(Hidden),
+};
+
+DECLARE_DELEGATE_TwoParams(FOnCornerTurnBeginSignature, const FVector& CornerTurnDirection, const ECornerType CornerType);
+DECLARE_DELEGATE(FOnCornerTurnEndSignature);
+
+
+
 
 /**
- * 
+ *
  */
 UCLASS()
 class OBSTACLEASSAULT_API UCustomCharacterMovementComponent : public UCharacterMovementComponent
@@ -42,6 +55,11 @@ public:
 
 	void WallRunStop();
 
+public:
+
+	FOnCornerTurnBeginSignature OnCornerTurnBegin;
+
+	FOnCornerTurnEndSignature OnCornerTurnEnd;
 
 
 private:
@@ -55,7 +73,7 @@ private:
 	bool bWantsToWallRun = false;
 
 
-	UPROPERTY(EditAnywhere, Category = Movement, meta = (DisplayName = "Auto wall run"));
+	UPROPERTY(EditAnywhere, Category = Movement, meta = (DisplayName = "Auto wall run"))
 	bool bAutoWallRun = true;
 
 	UPROPERTY(Transient)
@@ -65,7 +83,7 @@ private:
 
 	double WallSearchTraceDistance = 0.0f;
 
-	UPROPERTY(EditAnywhere, Category = Movement, meta = (DisplayName = "Wall Run Rotation Speed"));
+	UPROPERTY(EditAnywhere, Category = Movement, meta = (DisplayName = "Wall Run Rotation Speed"))
 	float WallRunRotationInterpSpeed = 5.0f;
 
 	UPROPERTY(EditAnywhere, Category = Movement, meta = (DisplayName = "Wall Run Speed"))
@@ -82,10 +100,10 @@ private:
 	EWallRunSide WallRunSide{ EWRS_None };
 
 protected:
-	
+
 	UFUNCTION()
 	virtual void OnCapsuleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-	
+
 	bool CanWallRun() const;
 
 	virtual void InitWallRun();
@@ -101,7 +119,7 @@ protected:
 
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 
-	virtual void HandleWallRunCorner(); 
+	virtual void HandleWallRunCorner(const ECornerType CornerType);
 
 	UFUNCTION()
 	virtual void OnTurnedAroundCorner();
