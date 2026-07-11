@@ -13,6 +13,8 @@ void UCustomCharacterMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	bWantsToWallRun = false;
+
 	WallSearchTraceDistance = CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleRadius() * 2.0;
 	CharacterOwner->GetCapsuleComponent()->OnComponentHit.AddUniqueDynamic(this, &UCustomCharacterMovementComponent::OnCapsuleHit);
 	PrevNonWallRunnableActor = nullptr;
@@ -61,6 +63,18 @@ void UCustomCharacterMovementComponent::WallRunStart()
 	bWantsToWallRun = true;
 }
 
+void UCustomCharacterMovementComponent::WallRunStop()
+{
+	if (bAutoWallRun) return;
+
+	bWantsToWallRun = false;
+
+	if (IsWallRunning())
+	{
+		SetMovementMode(EMovementMode::MOVE_Falling);
+	}
+}
+
 
 void UCustomCharacterMovementComponent::OnCapsuleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -83,7 +97,7 @@ void UCustomCharacterMovementComponent::OnCapsuleHit(UPrimitiveComponent* HitCom
 bool UCustomCharacterMovementComponent::CanWallRun() const
 {
 
-	return IsFalling() && !(GetWorld()->GetTimerManager().IsTimerActive(WallRunCoolDownTimer));
+	return (bAutoWallRun||bWantsToWallRun) && IsFalling() && !(GetWorld()->GetTimerManager().IsTimerActive(WallRunCoolDownTimer));
 
 }
 

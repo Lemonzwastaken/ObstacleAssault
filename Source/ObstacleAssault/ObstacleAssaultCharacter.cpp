@@ -67,6 +67,14 @@ void AObstacleAssaultCharacter::SetupPlayerInputComponent(UInputComponent* Playe
 
 		// Looking
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AObstacleAssaultCharacter::Look);
+
+		if (UCustomCharacterMovementComponent* CustomCharacterMovementComponent = Cast<UCustomCharacterMovementComponent>(GetCharacterMovement()))
+		{
+			EnhancedInputComponent->BindAction(WallRunAction, ETriggerEvent::Started, CustomCharacterMovementComponent, &UCustomCharacterMovementComponent::WallRunStart);
+			EnhancedInputComponent->BindAction(WallRunAction, ETriggerEvent::Completed, CustomCharacterMovementComponent, &UCustomCharacterMovementComponent::WallRunStop);
+		}
+
+
 	}
 	else
 	{
