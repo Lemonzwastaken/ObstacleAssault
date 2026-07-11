@@ -27,8 +27,14 @@ class OBSTACLEASSAULT_API UCustomCharacterMovementComponent : public UCharacterM
 	GENERATED_BODY()
 
 public:
+
 	virtual void BeginPlay() override;
 
+	virtual void AddInputVector(FVector WorldVector, bool bForce = false) override;
+
+	bool IsWallRunning() const;
+
+	virtual bool CanAttemptJump() const override;
 
 private:
 

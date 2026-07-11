@@ -18,6 +18,29 @@ void UCustomCharacterMovementComponent::BeginPlay()
 	PrevNonWallRunnableActor = nullptr;
 }
 
+void UCustomCharacterMovementComponent::AddInputVector(FVector WorldVector, bool bForce)
+{
+	if (!IsWallRunning())
+	{
+		Super::AddInputVector(WorldVector, bForce);
+	}
+}
+
+bool UCustomCharacterMovementComponent::IsWallRunning() const
+{
+	return MovementMode == MOVE_Custom && CustomMovementMode == CMOVE_WallRunning;
+}
+
+bool UCustomCharacterMovementComponent::CanAttemptJump() const
+{
+	if (IsWallRunning())
+	{
+		return BWallRunInitiated;
+	}
+
+	return Super::CanAttemptJump();
+}
+
 void UCustomCharacterMovementComponent::OnCapsuleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (OtherActor == PrevNonWallRunnableActor) return;
@@ -117,6 +140,9 @@ void UCustomCharacterMovementComponent::PhysWallRunning(float deltatime, int32 I
 
 	if (WallRunHitResult.bBlockingHit)
 	{
+		const FVector CharacterToWall = WallRunHitResult.ImpactPoint - CharacterOwner->GetActorLocation();
+		SafeMoveUpdatedComponent(CharacterToWall, CharacterOwner->GetActorRotation(), true, WallRunHitResult);
+
 		FRotator TargetRotation{};
 		CalcWallRunRotation(TargetRotation);
 		const FRotator InterpedTargetRotation = FMath::RInterpTo(CharacterOwner->GetActorRotation(), TargetRotation, deltatime, WallRunRotationInterpSpeed);
@@ -128,6 +154,6 @@ void UCustomCharacterMovementComponent::PhysWallRunning(float deltatime, int32 I
 	}
 	else
 	{
-		SetMovementMode(MOVE_Falling);
+		SetMovementMode(EMovementMode::MOVE_Falling);
 	}
 }
