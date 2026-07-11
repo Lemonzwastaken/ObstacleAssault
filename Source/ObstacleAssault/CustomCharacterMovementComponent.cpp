@@ -5,7 +5,7 @@
 #include <GameFramework/Character.h>
 #include <Components/CapsuleComponent.h>
 #include "WallRunnableInterface.h"
-
+#include "CustomMovementModes.h"
 
 void UCustomCharacterMovementComponent::BeginPlay()
 {
@@ -27,18 +27,10 @@ void UCustomCharacterMovementComponent::OnCapsuleHit(UPrimitiveComponent* HitCom
 	{
 		if (Cast<IWallRunnableInterface>(OtherActor))
 		{
-			if (GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Black, TEXT("Capsule Hit"));
-			}
+			InitWallRun();
 		}
 		else
 		{
-			if (GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Black, TEXT("Hit Non Wall Runnable Actor"));
-			}
-
 			PrevNonWallRunnableActor = OtherActor;
 		}
 	}
@@ -47,4 +39,9 @@ void UCustomCharacterMovementComponent::OnCapsuleHit(UPrimitiveComponent* HitCom
 bool UCustomCharacterMovementComponent::CanWallRun() const
 {
 	return IsFalling();
+}
+
+void UCustomCharacterMovementComponent::InitWallRun()
+{
+	SetMovementMode(MOVE_Custom, CMOVE_WallRunning);
 }

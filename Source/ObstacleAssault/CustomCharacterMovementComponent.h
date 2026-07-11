@@ -6,6 +6,16 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "CustomCharacterMovementComponent.generated.h"
 
+
+UENUM(BlueprintType)
+enum WallRunSide : uint8
+{
+	EWRS_None	UMETA(DisplayName = "None"),
+	EWRS_LeftSide UMETA(DisplayName = "Left Side"),
+	EWRS_RightSide UMETA(DisplayName = "Right Side")
+};
+
+
 /**
  * 
  */
@@ -31,5 +41,7 @@ protected:
 	virtual void OnCapsuleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 	
 	bool CanWallRun() const;
+
+	virtual void InitWallRun();
 
 };
