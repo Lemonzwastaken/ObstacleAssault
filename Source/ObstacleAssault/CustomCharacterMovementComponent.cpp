@@ -13,17 +13,14 @@ void UCustomCharacterMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	WallSearchTraceDistance = CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleRadius() * 2.0;
 	CharacterOwner->GetCapsuleComponent()->OnComponentHit.AddUniqueDynamic(this, &UCustomCharacterMovementComponent::OnCapsuleHit);
 	PrevNonWallRunnableActor = nullptr;
-	
-
-
 }
 
 void UCustomCharacterMovementComponent::OnCapsuleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (OtherActor == PrevNonWallRunnableActor) return;
-
 
 	if (CanWallRun())
 	{
@@ -55,36 +52,82 @@ void UCustomCharacterMovementComponent::InitWallRun()
 	WallRunSide = (RightProjWallNormal > 0.0) ? EWRS_LeftSide : EWRS_RightSide;
 
 	FRotator TargetRotation{};
+	CalcWallRunRotation(TargetRotation);
 
 	const FLatentActionInfo LatentActionInfo{ 0, INDEX_NONE, TEXT("OnWallRunInitComplete"), this };
 	static constexpr float MoveDuration = 0.2f;
 	UKismetSystemLibrary::MoveComponentTo(CharacterOwner->GetRootComponent(), CharacterOwner->GetActorLocation(), TargetRotation, true, true, MoveDuration, true, EMoveComponentAction::Move, LatentActionInfo);
-
 }
 
 void UCustomCharacterMovementComponent::CalcWallRunRotation(FRotator& OutWallRunRotation)
 {
-
-	//Y Vector
 	FVector Y{};
 	if (WallRunSide == EWRS_LeftSide)
 	{
 		Y = WallRunHitResult.ImpactNormal;
 	}
-	else 
+	else
 	{
 		Y = -WallRunHitResult.ImpactNormal;
 	}
 
-	//X Vector
 	const FVector X = FVector::CrossProduct(Y, CharacterOwner->GetActorUpVector()).GetSafeNormal();
 
 	OutWallRunRotation = FRotationMatrix::MakeFromXY(X, Y).Rotator();
-
-	
 }
 
 void UCustomCharacterMovementComponent::OnWallRunInitComplete()
 {
 	BWallRunInitiated = true;
+}
+
+void UCustomCharacterMovementComponent::PhysCustom(float deltatime, int32 Iterations)
+{
+	Super::PhysCustom(deltatime, Iterations);
+
+	switch (CustomMovementMode)
+	{
+	case CMOVE_WallRunning:
+		PhysWallRunning(deltatime, Iterations);
+		break;
+	default:
+		break;
+	}
+}
+
+void UCustomCharacterMovementComponent::PhysWallRunning(float deltatime, int32 Iterations)
+{
+	if (!BWallRunInitiated || deltatime < MIN_TICK_TIME) return;
+
+	FVector TraceStart = CharacterOwner->GetActorLocation();
+	FVector TraceDirection{};
+
+	if (WallRunSide == EWRS_LeftSide)
+	{
+		TraceDirection = -CharacterOwner->GetActorRightVector();
+	}
+	else
+	{
+		TraceDirection = CharacterOwner->GetActorRightVector();
+	}
+
+	FVector TraceEnd = TraceStart + TraceDirection * WallSearchTraceDistance;
+
+	GetWorld()->LineTraceSingleByChannel(WallRunHitResult, TraceStart, TraceEnd, ECC_Visibility);
+
+	if (WallRunHitResult.bBlockingHit)
+	{
+		FRotator TargetRotation{};
+		CalcWallRunRotation(TargetRotation);
+		const FRotator InterpedTargetRotation = FMath::RInterpTo(CharacterOwner->GetActorRotation(), TargetRotation, deltatime, WallRunRotationInterpSpeed);
+
+		Velocity = CharacterOwner->GetActorForwardVector() * WallRunSpeed;
+
+		const FVector AdjustedVelocity = Velocity * deltatime;
+		SafeMoveUpdatedComponent(AdjustedVelocity, InterpedTargetRotation, true, WallRunHitResult);
+	}
+	else
+	{
+		SetMovementMode(MOVE_Falling);
+	}
 }

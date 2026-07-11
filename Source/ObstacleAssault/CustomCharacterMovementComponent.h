@@ -41,6 +41,16 @@ private:
 
 	EWallRunSide WallRunSide{ EWRS_None };
 
+	double WallSearchTraceDistance = 0.0f;
+
+
+	UPROPERTY(EditAnywhere, Category = Movement, meta = (DisplayName = "Wall Run Interpolation Speed"))
+	float WallRunRotationInterpSpeed = 5.0f;
+
+	UPROPERTY(EditAnywhere, Category = Movement, meta = (DisplayName = "Wall Run Speed"))
+	float WallRunSpeed = 550.0f;
+
+
 protected:
 	
 	UFUNCTION()
@@ -54,6 +64,11 @@ protected:
 
 	UFUNCTION()
 	virtual void OnWallRunInitComplete();
+
+	virtual void PhysCustom(float deltatime, int32 Iterations) override;
+
+	virtual void PhysWallRunning(float deltatime, int32 Iterations);
+
 
 
 };
