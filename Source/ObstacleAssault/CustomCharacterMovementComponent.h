@@ -38,7 +38,7 @@ public:
 
 private:
 
-	bool BWallRunInitiated = false;
+	bool bWallRunInitiated = false;
 
 	FHitResult WallRunHitResult{};
 
@@ -46,9 +46,6 @@ private:
 	TWeakObjectPtr<AActor> PrevNonWallRunnableActor{ nullptr };
 
 	FTimerHandle WallRunCoolDownTimer;
-
-
-	EWallRunSide WallRunSide{ EWRS_None };
 
 	double WallSearchTraceDistance = 0.0f;
 
@@ -61,6 +58,12 @@ private:
 	UPROPERTY(EditAnywhere, Category = Movement, meta = (DisplayName = "Wall Run Cooldown Duration"))
 	float WallRunCoolDownDuration = 0.7f;
 
+	UPROPERTY(EditAnywhere, Category = Movement, meta = (DisplayName = "Wall Run Corner Turn Duration"))
+	float WallRunCornerTurnDuration = 0.3f;
+
+	bool bIsTurningAroundCorner = false;
+
+	EWallRunSide WallRunSide{ EWRS_None };
 
 protected:
 	
@@ -82,4 +85,8 @@ protected:
 
 	virtual void OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode) override;
 
+	virtual void HandleWallRunCorner(); 
+
+	UFUNCTION()
+	virtual void OnTurnedAroundCorner();
 };
