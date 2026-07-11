@@ -125,9 +125,6 @@ void UCustomCharacterMovementComponent::PhysWallRunning(float deltatime, int32 I
 {
 	if (!bWallRunInitiated || bIsTurningAroundCorner || deltatime < MIN_TICK_TIME) return;
 
-	
-
-	/*Check if the character is at an inner corner, then turn them around the corner if there is one*/
 
 	FVector TraceStart = CharacterOwner->GetActorLocation();
 	FVector TraceDirection = CharacterOwner->GetActorForwardVector();
@@ -139,8 +136,6 @@ void UCustomCharacterMovementComponent::PhysWallRunning(float deltatime, int32 I
 		HandleWallRunCorner();
 		return;
 	}
-	
-	/*Check if a wall is besides the character, then move the character along the wall if there is one*/
 
 
 	if (WallRunSide == EWRS_LeftSide)
@@ -169,11 +164,33 @@ void UCustomCharacterMovementComponent::PhysWallRunning(float deltatime, int32 I
 
 		const FVector AdjustedVelocity = Velocity * deltatime;
 		SafeMoveUpdatedComponent(AdjustedVelocity, InterpedTargetRotation, true, WallRunHitResult);
+
+		return;
+	}
+
+	if (WallRunSide == EWRS_LeftSide)
+	{
+		TraceStart = CharacterOwner->GetActorLocation() + -CharacterOwner->GetActorRightVector() * WallSearchTraceDistance;
 	}
 	else
 	{
-		SetMovementMode(EMovementMode::MOVE_Falling);
+		TraceStart = CharacterOwner->GetActorLocation() + CharacterOwner->GetActorRightVector() * WallSearchTraceDistance;
 	}
+
+	TraceDirection = -CharacterOwner->GetActorForwardVector();
+	TraceEnd = TraceStart + TraceDirection * WallSearchTraceDistance;
+
+	GetWorld()->LineTraceSingleByChannel(WallRunHitResult, TraceStart, TraceEnd, ECC_Visibility);
+
+	if (WallRunHitResult.bBlockingHit)
+	{
+		HandleWallRunCorner();
+		return;
+	}
+
+	SetMovementMode(EMovementMode::MOVE_Falling);
+
+
 }
 
 void UCustomCharacterMovementComponent::OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode)
