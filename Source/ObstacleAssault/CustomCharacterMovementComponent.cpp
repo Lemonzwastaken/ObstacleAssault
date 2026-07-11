@@ -164,7 +164,7 @@ void UCustomCharacterMovementComponent::OnMovementModeChanged(EMovementMode Prev
 {
 	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);
 	
-	if (PreviousCustomMode == EMovementMode::MOVE_Custom && PreviousCustomMode == CMOVE_WallRunning)
+	if (PreviousMovementMode == EMovementMode::MOVE_Custom && PreviousCustomMode == CMOVE_WallRunning)
 	{
 		GetWorld()->GetTimerManager().SetTimer(WallRunCoolDownTimer, WallRunCoolDownDuration, false);
 	}
