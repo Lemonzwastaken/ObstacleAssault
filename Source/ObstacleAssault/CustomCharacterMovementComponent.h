@@ -8,11 +8,13 @@
 
 
 UENUM(BlueprintType)
-enum WallRunSide : uint8
+enum EWallRunSide : uint8
 {
 	EWRS_None	UMETA(DisplayName = "None"),
 	EWRS_LeftSide UMETA(DisplayName = "Left Side"),
-	EWRS_RightSide UMETA(DisplayName = "Right Side")
+	EWRS_RightSide UMETA(DisplayName = "Right Side"),
+
+	EWRS_MAX	   UMETA(Hidden),
 };
 
 
@@ -30,10 +32,14 @@ public:
 
 private:
 
+	bool BWallRunInitiated = false;
+
+	FHitResult WallRunHitResult{};
+
 	UPROPERTY(Transient)
 	TWeakObjectPtr<AActor> PrevNonWallRunnableActor{ nullptr };
 
-
+	EWallRunSide WallRunSide{ EWRS_None };
 
 protected:
 	
@@ -43,5 +49,11 @@ protected:
 	bool CanWallRun() const;
 
 	virtual void InitWallRun();
+
+	virtual void CalcWallRunRotation(FRotator& OutWallRunRotation);
+
+	UFUNCTION()
+	virtual void OnWallRunInitComplete();
+
 
 };

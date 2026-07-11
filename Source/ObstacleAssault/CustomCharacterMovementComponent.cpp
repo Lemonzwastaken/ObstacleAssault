@@ -6,6 +6,8 @@
 #include <Components/CapsuleComponent.h>
 #include "WallRunnableInterface.h"
 #include "CustomMovementModes.h"
+#include <Kismet/KismetSystemLibrary.h>
+
 
 void UCustomCharacterMovementComponent::BeginPlay()
 {
@@ -27,6 +29,7 @@ void UCustomCharacterMovementComponent::OnCapsuleHit(UPrimitiveComponent* HitCom
 	{
 		if (Cast<IWallRunnableInterface>(OtherActor))
 		{
+			WallRunHitResult = Hit;
 			InitWallRun();
 		}
 		else
@@ -43,5 +46,45 @@ bool UCustomCharacterMovementComponent::CanWallRun() const
 
 void UCustomCharacterMovementComponent::InitWallRun()
 {
+	BWallRunInitiated = false;
+
 	SetMovementMode(MOVE_Custom, CMOVE_WallRunning);
+
+	const double RightProjWallNormal = FVector::DotProduct(CharacterOwner->GetActorRightVector(), WallRunHitResult.ImpactNormal);
+
+	WallRunSide = (RightProjWallNormal > 0.0) ? EWRS_LeftSide : EWRS_RightSide;
+
+	FRotator TargetRotation{};
+
+	const FLatentActionInfo LatentActionInfo{ 0, INDEX_NONE, TEXT("OnWallRunInitComplete"), this };
+	static constexpr float MoveDuration = 0.2f;
+	UKismetSystemLibrary::MoveComponentTo(CharacterOwner->GetRootComponent(), CharacterOwner->GetActorLocation(), TargetRotation, true, true, MoveDuration, true, EMoveComponentAction::Move, LatentActionInfo);
+
+}
+
+void UCustomCharacterMovementComponent::CalcWallRunRotation(FRotator& OutWallRunRotation)
+{
+
+	//Y Vector
+	FVector Y{};
+	if (WallRunSide == EWRS_LeftSide)
+	{
+		Y = WallRunHitResult.ImpactNormal;
+	}
+	else 
+	{
+		Y = -WallRunHitResult.ImpactNormal;
+	}
+
+	//X Vector
+	const FVector X = FVector::CrossProduct(Y, CharacterOwner->GetActorUpVector()).GetSafeNormal();
+
+	OutWallRunRotation = FRotationMatrix::MakeFromXY(X, Y).Rotator();
+
+	
+}
+
+void UCustomCharacterMovementComponent::OnWallRunInitComplete()
+{
+	BWallRunInitiated = true;
 }
