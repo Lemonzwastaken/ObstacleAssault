@@ -7,7 +7,7 @@
 #include "CustomCharacterMovementComponent.generated.h"
 
 
-UENUM(BlueprintType)
+UENUM(BlueprintType, DisplayName =	"WallRunSide")
 enum EWallRunSide : uint8
 {
 	EWRS_None	UMETA(DisplayName = "None"),
@@ -47,7 +47,16 @@ public:
 
 	virtual void AddInputVector(FVector WorldVector, bool bForce = false) override;
 
+
+	UFUNCTION(BlueprintCallable)
 	bool IsWallRunning() const;
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE EWallRunSide GetWallRunSide() const { return WallRunSide; }
+
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE bool IsTurningAroundCorner() const { return bIsTurningAroundCorner; }
 
 	virtual bool CanAttemptJump() const override;
 
