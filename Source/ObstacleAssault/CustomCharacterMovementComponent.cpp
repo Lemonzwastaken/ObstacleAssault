@@ -9,7 +9,8 @@
 #include <Kismet/KismetSystemLibrary.h>
 #include <Components/SplineComponent.h>
 #include "GrindingPlatform.h"
-
+#include <GameFramework/Character.h>
+#include <Components/CapsuleComponent.h>
 
 void UCustomCharacterMovementComponent::BeginPlay()
 {
@@ -234,7 +235,7 @@ void UCustomCharacterMovementComponent::PhysWallRunning(float deltatime, int32 I
 void UCustomCharacterMovementComponent::OnMovementModeChanged(EMovementMode PreviousMovementMode, uint8 PreviousCustomMode)
 {
 	Super::OnMovementModeChanged(PreviousMovementMode, PreviousCustomMode);
-	
+
 	if (PreviousMovementMode == EMovementMode::MOVE_Custom && PreviousCustomMode == CMOVE_WallRunning)
 	{
 		GetWorld()->GetTimerManager().SetTimer(WallRunCoolDownTimer, WallRunCoolDownDuration, false);
@@ -290,7 +291,7 @@ void UCustomCharacterMovementComponent::PhysFalling(float deltatime, int32 Itera
 bool UCustomCharacterMovementComponent::TryEnterGrind()
 {
 
-	if ((MovementMode != EMovementMode::MOVE_Falling) || (Velocity.Z >= 0.0)) return false;	
+	if ((MovementMode != EMovementMode::MOVE_Falling) || (Velocity.Z >= 0.0)) return false;
 
 
 	FHitResult HitResult{};
@@ -311,13 +312,20 @@ bool UCustomCharacterMovementComponent::TryEnterGrind()
 
 	GrindingPlatform = CastChecked<AGrindingPlatform>(HitResult.GetActor());
 	const FVector CharacterLocation = GetActorLocation();
-
+	const float CharacterHalfHeight = CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 
 	for (const TObjectPtr<USplineComponent> GrindSpline : GrindingPlatform->GetGrindSplines())
 	{
 		FTransform GrindTransform = GrindSpline->FindTransformClosestToWorldLocation(CharacterLocation, ESplineCoordinateSpace::World);
+		const FVector CharacterHeightOffset = GrindTransform.GetUnitAxis(EAxis::Z) * CharacterHalfHeight;
+		GrindTransform.AddToTranslation(CharacterHeightOffset);
 
-		DrawDebugSphere(GetWorld(), GrindTransform.GetLocation(), GrindDetectionRadius, 32, FColor::Red);
+		if (FVector::Distance(CharacterLocation, GrindTransform.GetLocation()) > GrindDetectionRadius)
+		{
+			continue;
+		}
+
+		DrawDebugSphere(GetWorld(), GrindTransform.GetLocation(), GrindDetectionRadius, 32, FColor::Blue);
 
 	}
 
