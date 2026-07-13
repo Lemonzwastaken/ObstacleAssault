@@ -5,6 +5,20 @@
 #include <Components/SplineComponent.h>
 
 
+AGrindingPlatform::AGrindingPlatform()
+{
+
+	if (UStaticMeshComponent* StaticMeshComp = GetStaticMeshComponent())
+	{
+		GetStaticMeshComponent()->SetCollisionProfileName(FName{ "GrindingPlatform" });
+	}
+
+
+
+
+
+}
+
 void AGrindingPlatform::OnConstruction(const FTransform& Transform)
 {
 

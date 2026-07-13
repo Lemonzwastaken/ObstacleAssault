@@ -19,6 +19,8 @@ class OBSTACLEASSAULT_API AGrindingPlatform : public AStaticMeshActor
 	
 public:
 
+	AGrindingPlatform();
+
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 
@@ -26,9 +28,10 @@ public:
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangeEvent) override;
 #endif
 
-
+	const TArray<TObjectPtr<USplineComponent>>& GetGrindSplines() const { return GrindSplines; }
 
 private:
+
 
 	UPROPERTY(EditInstanceOnly, meta = (DisplayName = "Grind Splines"))
 	TArray<TObjectPtr<USplineComponent>> GrindSplines{};

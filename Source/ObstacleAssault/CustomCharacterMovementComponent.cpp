@@ -7,6 +7,8 @@
 #include "WallRunnableInterface.h"
 #include "CustomMovementModes.h"
 #include <Kismet/KismetSystemLibrary.h>
+#include <Components/SplineComponent.h>
+#include "GrindingPlatform.h"
 
 
 void UCustomCharacterMovementComponent::BeginPlay()
@@ -294,10 +296,31 @@ bool UCustomCharacterMovementComponent::TryEnterGrind()
 	FHitResult HitResult{};
 	const FVector TraceStart = GetActorFeetLocation();
 	const FVector TraceEnd = TraceStart + FVector{ 0.0, 0.0, -1.0 };
+	constexpr ECollisionChannel GrindCollisionChannel = ECC_GameTraceChannel1;
+
+
+	GetWorld()->SweepSingleByChannel(HitResult, TraceStart, TraceEnd, FQuat::Identity, GrindCollisionChannel, FCollisionShape::MakeSphere(GrindDetectionRadius));
 
 
 
-	//GetWorld()->SweepSingleByChannel(HitResult, TraceStart, TraceEnd, FQuat::Identity);
+	DrawDebugSphere(GetWorld(), TraceStart, GrindDetectionRadius, 32, FColor::Red);
+
+	if (!HitResult.bBlockingHit) return false;
+
+	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Black, TEXT("Hit Grinding Platform"));
+
+	GrindingPlatform = CastChecked<AGrindingPlatform>(HitResult.GetActor());
+	const FVector CharacterLocation = GetActorLocation();
+
+
+	for (const TObjectPtr<USplineComponent> GrindSpline : GrindingPlatform->GetGrindSplines())
+	{
+		FTransform GrindTransform = GrindSpline->FindTransformClosestToWorldLocation(CharacterLocation, ESplineCoordinateSpace::World);
+
+		DrawDebugSphere(GetWorld(), GrindTransform.GetLocation(), GrindDetectionRadius, 32, FColor::Red);
+
+	}
 
 	return true;
+
 }

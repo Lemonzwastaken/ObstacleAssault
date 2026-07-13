@@ -7,6 +7,9 @@
 #include "CustomCharacterMovementComponent.generated.h"
 
 
+class AGrindingPlatform;
+
+
 UENUM(BlueprintType, DisplayName =	"WallRunSide")
 enum EWallRunSide : uint8
 {
@@ -67,11 +70,13 @@ public:
 
 	void WallRunStop();
 
+
 public:
 
 	FOnCornerTurnBeginSignature OnCornerTurnBegin;
 
 	FOnCornerTurnEndSignature OnCornerTurnEnd;
+
 
 
 private:
@@ -110,6 +115,12 @@ private:
 	bool bIsTurningAroundCorner = false;
 
 	EWallRunSide WallRunSide{ EWRS_None };
+
+	UPROPERTY(EditAnywhere, Category = Grinding, meta = (DisplayName = "Grind Detection Radius"))
+	float GrindDetectionRadius = 50.0f;
+
+	UPROPERTY(Transient)
+	TWeakObjectPtr<AGrindingPlatform> GrindingPlatform = nullptr;
 
 protected:
 
