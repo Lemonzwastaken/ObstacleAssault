@@ -313,6 +313,13 @@ bool UCustomCharacterMovementComponent::TryEnterGrind()
 	GrindingPlatform = CastChecked<AGrindingPlatform>(HitResult.GetActor());
 	const FVector CharacterLocation = GetActorLocation();
 	const float CharacterHalfHeight = CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
+	const FVector CharacterForward = CharacterOwner->GetActorForwardVector();
+	USplineComponent* BestGrindSpline = nullptr;
+	FTransform BestGrindTransform{};
+	double BestGrindSplineScore{};
+	FVector BestGrindFwd{};
+
+
 
 	for (const TObjectPtr<USplineComponent> GrindSpline : GrindingPlatform->GetGrindSplines())
 	{
@@ -325,7 +332,37 @@ bool UCustomCharacterMovementComponent::TryEnterGrind()
 			continue;
 		}
 
-		DrawDebugSphere(GetWorld(), GrindTransform.GetLocation(), GrindDetectionRadius, 32, FColor::Blue);
+		if (BestGrindSpline)
+		{
+			const FVector GrindFwd = GrindTransform.GetUnitAxis(EAxis::X);
+			const double GrindSplineScore = FMath::Abs(FVector::DotProduct(CharacterForward, GrindFwd));
+
+
+			if (GrindSplineScore > BestGrindSplineScore) 
+			{
+				BestGrindSpline = GrindSpline;
+				BestGrindTransform = GrindTransform;
+				BestGrindFwd = GrindFwd;
+				BestGrindSplineScore = GrindSplineScore;
+			}
+
+		}
+		else
+		{
+			BestGrindSpline = GrindSpline;
+			BestGrindTransform = GrindTransform;
+			BestGrindFwd = BestGrindTransform.GetUnitAxis(EAxis::X);
+			BestGrindSplineScore = FMath::Abs(FVector::DotProduct(CharacterForward, BestGrindFwd));
+		}
+
+	}
+
+	if (!BestGrindSpline) return false;
+
+	for (float Distance = 0.0f; Distance <= BestGrindSpline->GetSplineLength(); Distance += 30.0f)
+	{
+		const FVector SphereLocation = BestGrindSpline->GetLocationAtDistanceAlongSpline(Distance, ESplineCoordinateSpace::World);
+		DrawDebugSphere(GetWorld(), SphereLocation, 15.0f, 16, FColor::Red);
 
 	}
 
