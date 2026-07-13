@@ -17,10 +17,18 @@ class OBSTACLEASSAULT_API AGrindingPlatform : public AStaticMeshActor
 {
 	GENERATED_BODY()
 	
+public:
+
+#ifdef WITH_EDITOR
+	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangeEvent) override;
+#endif
+
+
+
 private:
 
 	UPROPERTY(EditInstanceOnly, meta = (DisplayName = "Grind Splines"))
-	TArray<TObjectPtr<USplineComponent>> GrindSpline{};
+	TArray<TObjectPtr<USplineComponent>> GrindSplines{};
 	
 
 
