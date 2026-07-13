@@ -4,6 +4,32 @@
 #include "GrindingPlatform.h"
 #include <Components/SplineComponent.h>
 
+
+void AGrindingPlatform::OnConstruction(const FTransform& Transform)
+{
+
+	if (GrindSplines.Contains(nullptr)) return;
+
+	for (UActorComponent* ActorComp : GetComponents())
+	{
+		USplineComponent* SplineComp = Cast<USplineComponent>(ActorComp);
+
+		if (SplineComp && !GrindSplines.Contains(SplineComp))
+		{
+			GrindSplines.Add(SplineComp);
+		}
+	}
+
+	GrindSplines.RemoveAll([this](TObjectPtr<USplineComponent> SplineComp) {
+
+		return SplineComp && !OwnsComponent(SplineComp);
+	
+	});
+}
+
+
+
+
 #if WITH_EDITOR
 void AGrindingPlatform::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangeEvent)
 {

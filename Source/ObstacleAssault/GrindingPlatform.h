@@ -19,6 +19,9 @@ class OBSTACLEASSAULT_API AGrindingPlatform : public AStaticMeshActor
 	
 public:
 
+	virtual void OnConstruction(const FTransform& Transform) override;
+
+
 #ifdef WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangeEvent) override;
 #endif
