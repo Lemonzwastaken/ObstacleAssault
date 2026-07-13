@@ -8,6 +8,40 @@
 
 
 class AGrindingPlatform;
+class USplineComponent;
+
+USTRUCT()
+struct FGrindState
+{
+	GENERATED_BODY();
+
+	UPROPERTY()
+	TWeakObjectPtr<AGrindingPlatform> GrindingPlatform = nullptr;
+
+	UPROPERTY()
+	TWeakObjectPtr<USplineComponent> GrindSpline = nullptr;
+
+	FQuat GrindDetectionRotation{};
+	
+	FQuat GrindEntryRotation{};	
+
+	FVector GrindDetectionLocation{};
+
+	FVector GrindEntryLocation{};
+
+	float CharacterHalfHeight = 0.0f;
+
+	float MoveToGrindEntryPointDuration = 0.2f;
+
+	float MoveToGrindEntryTimeElapsed = 0.0f;
+
+	float DistanceAlongGrind = 0.0f;
+
+	bool bGrindingForward = true;
+
+	bool bMovingToGrindEntryPoint = true;
+
+};
 
 
 UENUM(BlueprintType, DisplayName =	"WallRunSide")
@@ -119,8 +153,8 @@ private:
 	UPROPERTY(EditAnywhere, Category = Grinding, meta = (DisplayName = "Grind Detection Radius"))
 	float GrindDetectionRadius = 50.0f;
 
-	UPROPERTY(Transient)
-	TWeakObjectPtr<AGrindingPlatform> GrindingPlatform = nullptr;
+	UPROPERTY()
+	FGrindState GrindState{};
 
 protected:
 

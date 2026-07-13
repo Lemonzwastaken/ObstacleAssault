@@ -21,6 +21,11 @@ void UCustomCharacterMovementComponent::BeginPlay()
 	WallSearchTraceDistance = CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleRadius() * 2.0;
 	CharacterOwner->GetCapsuleComponent()->OnComponentHit.AddUniqueDynamic(this, &UCustomCharacterMovementComponent::OnCapsuleHit);
 	PrevNonWallRunnableActor = nullptr;
+
+	GrindState = {};
+
+
+
 }
 
 void UCustomCharacterMovementComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -310,7 +315,7 @@ bool UCustomCharacterMovementComponent::TryEnterGrind()
 
 	GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Black, TEXT("Hit Grinding Platform"));
 
-	GrindingPlatform = CastChecked<AGrindingPlatform>(HitResult.GetActor());
+	AGrindingPlatform* HitGrindingPlatform = CastChecked<AGrindingPlatform>(HitResult.GetActor());
 	const FVector CharacterLocation = GetActorLocation();
 	const float CharacterHalfHeight = CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight();
 	const FVector CharacterForward = CharacterOwner->GetActorForwardVector();
@@ -321,7 +326,7 @@ bool UCustomCharacterMovementComponent::TryEnterGrind()
 
 
 
-	for (const TObjectPtr<USplineComponent> GrindSpline : GrindingPlatform->GetGrindSplines())
+	for (const TObjectPtr<USplineComponent> GrindSpline : HitGrindingPlatform->GetGrindSplines())
 	{
 		FTransform GrindTransform = GrindSpline->FindTransformClosestToWorldLocation(CharacterLocation, ESplineCoordinateSpace::World);
 		const FVector CharacterHeightOffset = GrindTransform.GetUnitAxis(EAxis::Z) * CharacterHalfHeight;
@@ -365,6 +370,17 @@ bool UCustomCharacterMovementComponent::TryEnterGrind()
 		DrawDebugSphere(GetWorld(), SphereLocation, 15.0f, 16, FColor::Red);
 
 	}
+
+	GrindState.GrindingPlatform = HitGrindingPlatform;
+	GrindState.GrindSpline = BestGrindSpline;
+	GrindState.GrindDetectionLocation = CharacterLocation;
+	GrindState.GrindDetectionRotation = CharacterOwner->GetActorQuat();
+	GrindState.GrindEntryLocation = BestGrindTransform.GetLocation();
+	GrindState.GrindEntryRotation = BestGrindTransform.GetRotation();
+	GrindState.CharacterHalfHeight = CharacterHalfHeight;
+	GrindState.DistanceAlongGrind = GrindState.GrindSpline->GetDistanceAlongSplineAtLocation(GrindState.GrindEntryLocation, ESplineCoordinateSpace::World);
+	GrindState.MoveToGrindEntryTimeElapsed = 0.0f;
+	GrindState.bGrindingForward = FVector::DotProduct(CharacterForward, GrindState.GrindEntryRotation.GetForwardVector()) > 0.0;
 
 	return true;
 
