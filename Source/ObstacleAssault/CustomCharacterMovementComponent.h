@@ -39,6 +39,9 @@ class OBSTACLEASSAULT_API UCustomCharacterMovementComponent : public UCharacterM
 {
 	GENERATED_BODY()
 
+
+
+
 public:
 
 	virtual void BeginPlay() override;
@@ -132,4 +135,10 @@ protected:
 
 	UFUNCTION()
 	virtual void OnTurnedAroundCorner();
+
+	virtual void PhysFalling(float deltatime, int32 Iterations) override;
+
+	virtual bool TryEnterGrind();
+
+
 };

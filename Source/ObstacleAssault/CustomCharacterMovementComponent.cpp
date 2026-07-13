@@ -275,3 +275,29 @@ void UCustomCharacterMovementComponent::OnTurnedAroundCorner()
 	OnCornerTurnEnd.ExecuteIfBound();
 
 }
+
+void UCustomCharacterMovementComponent::PhysFalling(float deltatime, int32 Iterations)
+{
+
+	Super::PhysFalling(deltatime, Iterations);
+
+	const bool bEnteredGrind = TryEnterGrind();
+
+}
+
+bool UCustomCharacterMovementComponent::TryEnterGrind()
+{
+
+	if ((MovementMode != EMovementMode::MOVE_Falling) || (Velocity.Z >= 0.0)) return false;	
+
+
+	FHitResult HitResult{};
+	const FVector TraceStart = GetActorFeetLocation();
+	const FVector TraceEnd = TraceStart + FVector{ 0.0, 0.0, -1.0 };
+
+
+
+	//GetWorld()->SweepSingleByChannel(HitResult, TraceStart, TraceEnd, FQuat::Identity);
+
+	return true;
+}
