@@ -125,10 +125,6 @@ private:
 
 	bool bWantsToWallRun = false;
 
-	bool bHasWallRunLeftSide = false;
-
-	bool bHasWallRunRightSide = false;
-
 
 	UPROPERTY(EditAnywhere, Category = Movement, meta = (DisplayName = "Auto wall run"))
 	bool bAutoWallRun = true;

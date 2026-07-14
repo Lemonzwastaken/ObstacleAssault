@@ -355,6 +355,10 @@ bool UCustomCharacterMovementComponent::TryEnterGrind()
 
 	for (const TObjectPtr<USplineComponent> GrindSpline : HitGrindingPlatform->GetGrindSplines())
 	{
+
+		checkf(GrindSpline, TEXT("GrindSpline is null"));
+
+
 		FTransform GrindTransform = GrindSpline->FindTransformClosestToWorldLocation(CharacterLocation, ESplineCoordinateSpace::World);
 
 		const FVector CharacterToGrindLocation = GrindTransform.GetLocation() - CharacterLocation;
@@ -507,7 +511,12 @@ void UCustomCharacterMovementComponent::PhysGrinding(float deltatime, int32 Iter
 
 	Velocity = (UpdatedComponent->GetComponentLocation() - LastLocation) / deltatime;
 
-	if (!bShouldContinueGrinding)
+
+	if (HitResult.bBlockingHit)
+	{
+		SetMovementMode(MOVE_Walking);
+	}
+	else if (!bShouldContinueGrinding)
 	{
 		SetMovementMode(EMovementMode::MOVE_Falling);
 	}
