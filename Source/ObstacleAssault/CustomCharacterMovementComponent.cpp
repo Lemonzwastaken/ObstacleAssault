@@ -413,14 +413,34 @@ bool UCustomCharacterMovementComponent::TryEnterGrind()
 
 	GrindState.GrindingPlatform = HitGrindingPlatform;
 	GrindState.GrindSpline = BestGrindSpline;
+	GrindState.CharacterHalfHeight = CharacterHalfHeight;
+	GrindState.bGrindingForward = FVector::DotProduct(CharacterForward, BestGrindFwd) > 0.0;
+	GrindState.DistanceAlongGrind = GrindState.GrindSpline->GetDistanceAlongSplineAtLocation(CharacterLocation, ESplineCoordinateSpace::World);
+
+	if (GrindState.bGrindingForward)
+	{
+		GrindState.DistanceAlongGrind += GrindSpeed * GrindState.MoveToGrindEntryPointDuration;
+	}
+	else
+	{
+		GrindState.DistanceAlongGrind -= GrindSpeed * GrindState.MoveToGrindEntryPointDuration;
+	}
+
+	if (GrindState.GrindSpline->IsClosedLoop())
+	{
+		GrindState.DistanceAlongGrind = FMath::Wrap(GrindState.DistanceAlongGrind, 0.0f, GrindState.GrindSpline->GetSplineLength());
+	}
+
+
 	GrindState.GrindDetectionLocation = CharacterLocation;
 	GrindState.GrindDetectionRotation = CharacterOwner->GetActorQuat();
-	GrindState.GrindEntryLocation = BestGrindTransform.GetLocation();
+
+	GrindState.GrindEntryRotation = GrindState.GrindSpline->GetQuaternionAtDistanceAlongSpline(GrindState.DistanceAlongGrind, ESplineCoordinateSpace::World);
+	
+	GrindState.GrindEntryLocation = GrindState.GrindSpline->GetLocationAtDistanceAlongSpline(GrindState.DistanceAlongGrind, ESplineCoordinateSpace::World);
+	GrindState.GrindEntryLocation += GrindState.GrindEntryRotation.GetUpVector() * GrindState.CharacterHalfHeight;
 	GrindState.GrindEntryRotation = BestGrindTransform.GetRotation();
-	GrindState.CharacterHalfHeight = CharacterHalfHeight;
-	GrindState.DistanceAlongGrind = GrindState.GrindSpline->GetDistanceAlongSplineAtLocation(GrindState.GrindEntryLocation, ESplineCoordinateSpace::World);
 	GrindState.MoveToGrindEntryTimeElapsed = 0.0f;
-	GrindState.bGrindingForward = FVector::DotProduct(CharacterForward, GrindState.GrindEntryRotation.GetForwardVector()) > 0.0;
 
 	if (!GrindState.bGrindingForward)
 	{

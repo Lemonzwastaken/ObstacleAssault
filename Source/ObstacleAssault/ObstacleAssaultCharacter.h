@@ -7,9 +7,13 @@
 #include "Logging/LogMacros.h"
 #include "ObstacleAssaultCharacter.generated.h"
 
+
+
 class USpringArmComponent;
 class UCameraComponent;
 class UInputAction;
+class UGrindEffectsComponent;
+
 struct FInputActionValue;
 enum ECornerType : uint8;
 
@@ -34,6 +38,10 @@ class AObstacleAssaultCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
+
+	UPROPERTY(VisibleAnywhere, Category = "Grinding")
+	TObjectPtr<UGrindEffectsComponent> GrindEffectsComponent;
+
 	
 protected:
 

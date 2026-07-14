@@ -105,7 +105,9 @@ public:
 
 	void WallRunStop();
 
+	UFUNCTION(BlueprintCallable)
 	bool IsGrinding() const;
+
 
 public:
 
