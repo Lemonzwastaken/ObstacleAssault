@@ -104,6 +104,7 @@ public:
 
 	void WallRunStop();
 
+	bool IsGrinding() const;
 
 public:
 

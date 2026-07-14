@@ -60,7 +60,7 @@ bool UCustomCharacterMovementComponent::CanAttemptJump() const
 		return bWallRunInitiated;
 	}
 
-	return Super::CanAttemptJump();
+	return Super::CanAttemptJump() || IsGrinding();
 }
 
 
@@ -81,6 +81,11 @@ void UCustomCharacterMovementComponent::WallRunStop()
 	{
 		SetMovementMode(EMovementMode::MOVE_Falling);
 	}
+}
+
+bool UCustomCharacterMovementComponent::IsGrinding() const
+{
+	return MovementMode == MOVE_Custom && CustomMovementMode == CMOVE_Grinding;
 }
 
 
