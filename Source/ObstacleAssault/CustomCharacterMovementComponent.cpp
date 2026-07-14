@@ -421,6 +421,7 @@ void UCustomCharacterMovementComponent::PhysGrinding(float deltatime, int32 Iter
 	const FVector LastLocation = UpdatedComponent->GetComponentLocation();
 	FVector NewLocation{};
 	FQuat NewRotation{};
+	bool bShouldContinueGrinding = true;
 
 	if (GrindState.bMovingToGrindEntryPoint) 
 	{
@@ -447,15 +448,34 @@ void UCustomCharacterMovementComponent::PhysGrinding(float deltatime, int32 Iter
 			GrindState.DistanceAlongGrind -= GrindSpeed * deltatime;
 		}
 
-		NewRotation = GrindState.GrindSpline->GetQuaternionAtDistanceAlongSpline(GrindState.DistanceAlongGrind, ESplineCoordinateSpace::World);
+		
+		const float	SplineLength = GrindState.GrindSpline->GetSplineLength();
+		const bool bPassedEndPoint = (GrindState.DistanceAlongGrind >= SplineLength) || (GrindState.DistanceAlongGrind <= 0.0f);
 
-		if (!GrindState.bGrindingForward)
+		if (bPassedEndPoint && !(GrindState.GrindSpline->IsClosedLoop()))
 		{
-			NewRotation *= FQuat(FVector::UpVector, UE_PI);
-		}
 
-		NewLocation = GrindState.GrindSpline->GetLocationAtDistanceAlongSpline(GrindState.DistanceAlongGrind, ESplineCoordinateSpace::World);
-		NewLocation += NewRotation.GetUpVector() * GrindState.CharacterHalfHeight;
+			bShouldContinueGrinding = false;
+			NewRotation = UpdatedComponent->GetComponentQuat();
+			NewLocation = LastLocation + UpdatedComponent->GetForwardVector() * GrindSpeed * deltatime;
+		}
+		else
+		{
+			if (GrindState.GrindSpline->IsClosedLoop())
+			{
+				GrindState.DistanceAlongGrind = FMath::Wrap(GrindState.DistanceAlongGrind, 0.0f, SplineLength);
+			}
+
+			NewRotation = GrindState.GrindSpline->GetQuaternionAtDistanceAlongSpline(GrindState.DistanceAlongGrind, ESplineCoordinateSpace::World);
+
+			if (!GrindState.bGrindingForward)
+			{
+				NewRotation *= FQuat(FVector::UpVector, UE_PI);
+			}
+
+			NewLocation = GrindState.GrindSpline->GetLocationAtDistanceAlongSpline(GrindState.DistanceAlongGrind, ESplineCoordinateSpace::World);
+			NewLocation += NewRotation.GetUpVector() * GrindState.CharacterHalfHeight;
+		}
 
 	}
 
@@ -468,6 +488,15 @@ void UCustomCharacterMovementComponent::PhysGrinding(float deltatime, int32 Iter
 	SafeMoveUpdatedComponent(DeltaLocation, NewRotation, true, HitResult);
 
 	Velocity = (UpdatedComponent->GetComponentLocation() - LastLocation) / deltatime;
+
+	if (!bShouldContinueGrinding)
+	{
+		SetMovementMode(EMovementMode::MOVE_Falling);
+	}
+
+	const FString DebugString = FString::Printf(TEXT("Distance along grind: %f"), GrindState.DistanceAlongGrind);
+
+	DrawDebugString(GetWorld(), GetActorLocation(), DebugString, nullptr, FColor::White, 0.0f, true, 2.0f);
 }
 
 void UCustomCharacterMovementComponent::OnMovementUpdated(float deltaseconds, const FVector& OldLocation, const FVector& OldVelocity)
