@@ -160,9 +160,17 @@ void UCustomCharacterMovementComponent::PhysCustom(float deltatime, int32 Iterat
 	case CMOVE_WallRunning:
 		PhysWallRunning(deltatime, Iterations);
 		break;
+
+	case CMOVE_Grinding:
+		
+		PhysGrinding(deltatime, Iterations);
+		break;
+
+
 	default:
 		break;
 	}
+
 }
 
 void UCustomCharacterMovementComponent::PhysWallRunning(float deltatime, int32 Iterations)
@@ -287,9 +295,18 @@ void UCustomCharacterMovementComponent::OnTurnedAroundCorner()
 void UCustomCharacterMovementComponent::PhysFalling(float deltatime, int32 Iterations)
 {
 
-	Super::PhysFalling(deltatime, Iterations);
-
 	const bool bEnteredGrind = TryEnterGrind();
+
+	if (bEnteredGrind) 
+	{
+
+		StartNewPhysics(deltatime, Iterations);
+	
+	}
+	else
+	{
+		Super::PhysFalling(deltatime, Iterations);
+	}
 
 }
 
@@ -382,6 +399,54 @@ bool UCustomCharacterMovementComponent::TryEnterGrind()
 	GrindState.MoveToGrindEntryTimeElapsed = 0.0f;
 	GrindState.bGrindingForward = FVector::DotProduct(CharacterForward, GrindState.GrindEntryRotation.GetForwardVector()) > 0.0;
 
+	if (!GrindState.bGrindingForward)
+	{
+		GrindState.GrindEntryRotation *= FQuat(FVector::UpVector, UE_PI);
+	}
+
+	CharacterOwner->MoveIgnoreActorAdd(GrindState.GrindingPlatform.Get());
+	GrindState.bMovingToGrindEntryPoint = true;
+	SetMovementMode(EMovementMode::MOVE_Custom, CMOVE_Grinding);
+
+
+
 	return true;
 
+}
+
+void UCustomCharacterMovementComponent::PhysGrinding(float deltatime, int32 Iterations)
+{
+	if (deltatime < MIN_TICK_TIME) return;
+
+	const FVector LastLocation = UpdatedComponent->GetComponentLocation();
+	FVector NewLocation{};
+	FQuat NewRotation{};
+
+	if (GrindState.bMovingToGrindEntryPoint) 
+	{
+		GrindState.MoveToGrindEntryTimeElapsed += deltatime;
+		checkf(GrindState.MoveToGrindEntryPointDuration >= UE_SMALL_NUMBER, TEXT("MoveToGrindEntryPointDuration must be greater than 0.0!"));
+		float Alpha = GrindState.MoveToGrindEntryTimeElapsed / GrindState.MoveToGrindEntryPointDuration;
+		Alpha = FMath::Clamp(Alpha, 0.0f, 1.0f);
+
+		NewLocation = FMath::Lerp(GrindState.GrindDetectionLocation, GrindState.GrindEntryLocation, Alpha);
+		NewRotation = FQuat::Slerp(GrindState.GrindDetectionRotation, GrindState.GrindEntryRotation, Alpha);
+
+
+
+	}
+	else
+	{
+
+	}
+
+
+	Iterations++;
+	bJustTeleported = false;
+
+	const FVector DeltaLocation = NewLocation - LastLocation;
+	FHitResult HitResult{};
+	SafeMoveUpdatedComponent(DeltaLocation, NewRotation, true, HitResult);
+
+	Velocity = (UpdatedComponent->GetComponentLocation() - LastLocation) / deltatime;
 }

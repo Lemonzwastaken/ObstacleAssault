@@ -3,9 +3,11 @@
 
 
 UENUM(BlueprintType)
-enum ECustomWallMovementMode : int
+enum ECustomMovementMode : int
 {
 	CMOVE_WallRunning  UMETA(DisplayName = "WallRunning"),
+
+	CMOVE_Grinding		UMETA(DisplayName = "Grinding"),
 
 	CMOVE_MAX		   UMETA(Hidden),
 };

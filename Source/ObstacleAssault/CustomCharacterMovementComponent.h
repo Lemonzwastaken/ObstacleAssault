@@ -185,5 +185,6 @@ protected:
 
 	virtual bool TryEnterGrind();
 
+	virtual void PhysGrinding(float deltatime, int32 Iterations);
 
 };
