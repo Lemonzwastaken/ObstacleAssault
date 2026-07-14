@@ -437,6 +437,25 @@ void UCustomCharacterMovementComponent::PhysGrinding(float deltatime, int32 Iter
 	}
 	else
 	{
+		if (GrindState.bGrindingForward)
+		{
+			GrindState.DistanceAlongGrind += GrindSpeed * deltatime;
+
+		}
+		else
+		{
+			GrindState.DistanceAlongGrind -= GrindSpeed * deltatime;
+		}
+
+		NewRotation = GrindState.GrindSpline->GetQuaternionAtDistanceAlongSpline(GrindState.DistanceAlongGrind, ESplineCoordinateSpace::World);
+
+		if (!GrindState.bGrindingForward)
+		{
+			NewRotation *= FQuat(FVector::UpVector, UE_PI);
+		}
+
+		NewLocation = GrindState.GrindSpline->GetLocationAtDistanceAlongSpline(GrindState.DistanceAlongGrind, ESplineCoordinateSpace::World);
+		NewLocation += NewRotation.GetUpVector() * GrindState.CharacterHalfHeight;
 
 	}
 
@@ -449,4 +468,18 @@ void UCustomCharacterMovementComponent::PhysGrinding(float deltatime, int32 Iter
 	SafeMoveUpdatedComponent(DeltaLocation, NewRotation, true, HitResult);
 
 	Velocity = (UpdatedComponent->GetComponentLocation() - LastLocation) / deltatime;
+}
+
+void UCustomCharacterMovementComponent::OnMovementUpdated(float deltaseconds, const FVector& OldLocation, const FVector& OldVelocity)
+{
+
+	Super::OnMovementUpdated(deltaseconds, OldLocation, OldVelocity);
+
+	if (GrindState.bMovingToGrindEntryPoint && (GrindState.MoveToGrindEntryTimeElapsed >= GrindState.MoveToGrindEntryPointDuration))
+	{
+		GrindState.bMovingToGrindEntryPoint = false;
+
+
+	}
+
 }

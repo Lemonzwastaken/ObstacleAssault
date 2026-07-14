@@ -153,8 +153,16 @@ private:
 	UPROPERTY(EditAnywhere, Category = Grinding, meta = (DisplayName = "Grind Detection Radius"))
 	float GrindDetectionRadius = 50.0f;
 
+	UPROPERTY(EditAnywhere, Category = Grinding, meta = (DisplayName = "Grind Speed"))
+	float GrindSpeed = 600.0f;
+	
+	
+	
 	UPROPERTY()
 	FGrindState GrindState{};
+
+
+
 
 protected:
 
@@ -187,4 +195,7 @@ protected:
 
 	virtual void PhysGrinding(float deltatime, int32 Iterations);
 
+	virtual void OnMovementUpdated(float deltaseconds, const FVector& OldLocation, const FVector& OldVelocity);
+
+	
 };
