@@ -253,6 +253,12 @@ void UCustomCharacterMovementComponent::OnMovementModeChanged(EMovementMode Prev
 	{
 		GetWorld()->GetTimerManager().SetTimer(WallRunCoolDownTimer, WallRunCoolDownDuration, false);
 	}
+
+	if (PreviousMovementMode == MOVE_Custom && PreviousCustomMode == CMOVE_Grinding)
+	{
+		CharacterOwner->MoveIgnoreActorRemove(GrindState.GrindingPlatform.Get());
+	}
+
 }
 
 void UCustomCharacterMovementComponent::HandleWallRunCorner(const ECornerType CornerType)
@@ -346,6 +352,14 @@ bool UCustomCharacterMovementComponent::TryEnterGrind()
 	for (const TObjectPtr<USplineComponent> GrindSpline : HitGrindingPlatform->GetGrindSplines())
 	{
 		FTransform GrindTransform = GrindSpline->FindTransformClosestToWorldLocation(CharacterLocation, ESplineCoordinateSpace::World);
+
+		const FVector CharacterToGrindLocation = GrindTransform.GetLocation() - CharacterLocation;
+
+		if (FVector::DotProduct(CharacterToGrindLocation, Velocity) < 0.0) 
+		{
+			continue;
+		}
+
 		const FVector CharacterHeightOffset = GrindTransform.GetUnitAxis(EAxis::Z) * CharacterHalfHeight;
 		GrindTransform.AddToTranslation(CharacterHeightOffset);
 
@@ -506,9 +520,10 @@ void UCustomCharacterMovementComponent::OnMovementUpdated(float deltaseconds, co
 
 	if (GrindState.bMovingToGrindEntryPoint && (GrindState.MoveToGrindEntryTimeElapsed >= GrindState.MoveToGrindEntryPointDuration))
 	{
-		GrindState.bMovingToGrindEntryPoint = false;
+		GrindState.bMovingToGrindEntryPoint = false; 
 
 
 	}
 
 }
+
