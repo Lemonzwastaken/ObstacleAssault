@@ -40,9 +40,8 @@ void UCustomCharacterMovementComponent::AddInputVector(FVector WorldVector, bool
 	if (IsWallRunning())
 	{
 		WallRunControlInputVector = WorldVector;
-
 	}
-	else
+	else if (!IsGrinding())
 	{
 		Super::AddInputVector(WorldVector, bForce);
 	}

@@ -95,6 +95,7 @@ public:
 	FORCEINLINE EWallRunSide GetWallRunSide() const { return WallRunSide; }
 
 
+
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool IsTurningAroundCorner() const { return bIsTurningAroundCorner; }
 
@@ -123,6 +124,10 @@ private:
 	FVector WallRunControlInputVector{};
 
 	bool bWantsToWallRun = false;
+
+	bool bHasWallRunLeftSide = false;
+
+	bool bHasWallRunRightSide = false;
 
 
 	UPROPERTY(EditAnywhere, Category = Movement, meta = (DisplayName = "Auto wall run"))
