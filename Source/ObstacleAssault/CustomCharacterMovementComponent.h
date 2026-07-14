@@ -159,11 +159,10 @@ private:
 	float GrindSpeed = 600.0f;
 	
 	
-	
 	UPROPERTY()
 	FGrindState GrindState{};
 
-
+	float GrindDetectionRadiusSquared;
 
 
 protected:
