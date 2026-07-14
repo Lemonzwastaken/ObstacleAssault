@@ -9,7 +9,7 @@
 
 
 class UNiagaraComponent;
-
+class UAudioComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class OBSTACLEASSAULT_API UGrindEffectsComponent : public UActorComponent
@@ -51,9 +51,14 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "GrindEffects", meta = (DisplayName = "Right Foot Grind Socket Name"))
 	FName RightFootGrindSocketName;
 
+	UPROPERTY(VisibleAnywhere, Category = "GrindEffects", meta = (DisplayName = "Grind SFX"))
+	TObjectPtr<UAudioComponent> GrindSFX;
+
+
+
 private:
 
-	void AttachSparksToMesh();
+	void AttachToMesh();
 
 
 };

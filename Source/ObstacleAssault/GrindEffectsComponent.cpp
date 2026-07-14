@@ -4,6 +4,8 @@
 #include "GrindEffectsComponent.h"
 #include  "NiagaraComponent.h"
 #include <GameFramework/Character.h>
+#include <Components/AudioComponent.h>
+
 
 // Sets default values for this component's properties
 UGrindEffectsComponent::UGrindEffectsComponent()
@@ -24,7 +26,8 @@ UGrindEffectsComponent::UGrindEffectsComponent()
 	LeftFootGrindSocketName = "foot_l_GrindSocket";
 	RightFootGrindSocketName = "foot_r_GrindSocket";
 
-
+	GrindSFX = CreateDefaultSubobject<UAudioComponent>(TEXT("GrindSFX"));
+	GrindSFX->bAutoActivate = false;
 
 	// ...
 }
@@ -41,6 +44,10 @@ void UGrindEffectsComponent::ActivateGrindEffects()
 		RightFootGrindSparks->ActivateSystem();
 	}
 
+	if (GrindSFX->GetSound())
+	{
+		GrindSFX->Play();
+	}
 }
 
 void UGrindEffectsComponent::DeActivateGrindEffects()
@@ -54,6 +61,11 @@ void UGrindEffectsComponent::DeActivateGrindEffects()
 	{
 		RightFootGrindSparks->Deactivate();
 	}
+
+	if (GrindSFX->GetSound())
+	{
+		GrindSFX->Stop();
+	}
 }
 
 
@@ -64,7 +76,7 @@ void UGrindEffectsComponent::BeginPlay()
 
 	CharacterOwner = CastChecked<ACharacter>(GetOwner());
 	
-	AttachSparksToMesh();
+	AttachToMesh();
 
 
 	// ...
@@ -80,7 +92,7 @@ void UGrindEffectsComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	// ...
 }
 
-void UGrindEffectsComponent::AttachSparksToMesh()
+void UGrindEffectsComponent::AttachToMesh()
 {
 	check(CharacterOwner && CharacterOwner->GetMesh());
 
@@ -92,6 +104,12 @@ void UGrindEffectsComponent::AttachSparksToMesh()
 	if (RightFootGrindSparks->GetAsset())
 	{
 		RightFootGrindSparks->AttachToComponent(CharacterOwner->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, RightFootGrindSocketName);
+	}
+
+
+	if (GrindSFX->GetSound())
+	{
+		GrindSFX->AttachToComponent(CharacterOwner->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale);
 	}
 }
 
