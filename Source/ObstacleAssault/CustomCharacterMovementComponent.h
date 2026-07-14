@@ -65,6 +65,9 @@ enum ECornerType : uint8
 DECLARE_DELEGATE_TwoParams(FOnCornerTurnBeginSignature, const FVector& CornerTurnDirection, const ECornerType CornerType);
 DECLARE_DELEGATE(FOnCornerTurnEndSignature);
 
+DECLARE_DELEGATE(FOnGrindBeginSignature);
+DECLARE_DELEGATE(FOnGrindEndSignature);
+
 
 
 
@@ -75,7 +78,6 @@ UCLASS()
 class OBSTACLEASSAULT_API UCustomCharacterMovementComponent : public UCharacterMovementComponent
 {
 	GENERATED_BODY()
-
 
 
 
@@ -115,7 +117,9 @@ public:
 
 	FOnCornerTurnEndSignature OnCornerTurnEnd;
 
+	FOnGrindBeginSignature OnGrindBegin;
 
+	FOnGrindEndSignature OnGrindEnd;
 
 private:
 

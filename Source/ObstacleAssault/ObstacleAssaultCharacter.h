@@ -17,6 +17,8 @@ class UGrindEffectsComponent;
 struct FInputActionValue;
 enum ECornerType : uint8;
 
+class UCustomCharacterMovementComponent;
+
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
@@ -41,6 +43,9 @@ class AObstacleAssaultCharacter : public ACharacter
 
 	UPROPERTY(VisibleAnywhere, Category = "Grinding")
 	TObjectPtr<UGrindEffectsComponent> GrindEffectsComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UCustomCharacterMovementComponent> CustomCharacterMovement;
 
 	
 protected:
@@ -78,9 +83,9 @@ public:
 
 	virtual void PostInitializeComponents() override; 
 
-	class UCustomCharacterMovementComponent* GetCustomCharacterMovement() const;
-
 	virtual void Tick(float Deltatime) override;
+
+
 
 
 protected:
@@ -128,5 +133,8 @@ public:
 
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	FORCEINLINE UCustomCharacterMovementComponent* GetCustomCharacterMovement() const { return CustomCharacterMovement; }
+
 };
 

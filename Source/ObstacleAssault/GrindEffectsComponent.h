@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "GrindEffectsComponent.generated.h"
 
+
+
 class UNiagaraComponent;
 
 
@@ -17,6 +19,10 @@ class OBSTACLEASSAULT_API UGrindEffectsComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UGrindEffectsComponent();
+
+	void ActivateGrindEffects();
+
+	void DeActivateGrindEffects();
 
 protected:
 	// Called when the game starts

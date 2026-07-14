@@ -55,24 +55,24 @@ AObstacleAssaultCharacter::AObstacleAssaultCharacter(const FObjectInitializer& O
 
 	GrindEffectsComponent = CreateDefaultSubobject<UGrindEffectsComponent>(TEXT("GrindEffectsComponent"));
 
+	CustomCharacterMovement = Cast<UCustomCharacterMovementComponent>(GetCharacterMovement());
 
-
-}
-
-UCustomCharacterMovementComponent* AObstacleAssaultCharacter::GetCustomCharacterMovement() const
-{
-	return Cast<UCustomCharacterMovementComponent>(GetCharacterMovement());
 }
 
 void AObstacleAssaultCharacter::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
+
 	if (UCustomCharacterMovementComponent* const CustomCharacterMovementComponent = GetCustomCharacterMovement())
 	{
 		CustomCharacterMovementComponent->OnCornerTurnBegin.BindUObject(this, &AObstacleAssaultCharacter::OnCornerTurnBegin);
 		CustomCharacterMovementComponent->OnCornerTurnEnd.BindUObject(this, &AObstacleAssaultCharacter::OnCornerTurnEnd);
 	}
+
+	GetCustomCharacterMovement()->OnGrindBegin.BindUObject(GrindEffectsComponent, &UGrindEffectsComponent::ActivateGrindEffects);
+	GetCustomCharacterMovement()->OnGrindEnd.BindUObject(GrindEffectsComponent, &UGrindEffectsComponent::DeActivateGrindEffects);
+
 }
 
 void AObstacleAssaultCharacter::Tick(float Deltatime)

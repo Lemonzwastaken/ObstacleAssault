@@ -29,6 +29,33 @@ UGrindEffectsComponent::UGrindEffectsComponent()
 	// ...
 }
 
+void UGrindEffectsComponent::ActivateGrindEffects()
+{
+	if (LeftFootGrindSparks->GetAsset())
+	{
+		LeftFootGrindSparks->ActivateSystem();
+	}
+
+	if (RightFootGrindSparks->GetAsset())
+	{
+		RightFootGrindSparks->ActivateSystem();
+	}
+
+}
+
+void UGrindEffectsComponent::DeActivateGrindEffects()
+{
+	if (LeftFootGrindSparks->IsActive())
+	{
+		LeftFootGrindSparks->Deactivate();
+	}
+
+	if (RightFootGrindSparks->IsActive())
+	{
+		RightFootGrindSparks->Deactivate();
+	}
+}
+
 
 // Called when the game starts
 void UGrindEffectsComponent::BeginPlay()
@@ -38,9 +65,6 @@ void UGrindEffectsComponent::BeginPlay()
 	CharacterOwner = CastChecked<ACharacter>(GetOwner());
 	
 	AttachSparksToMesh();
-
-	LeftFootGrindSparks->Activate();
-	RightFootGrindSparks->Activate();
 
 
 	// ...

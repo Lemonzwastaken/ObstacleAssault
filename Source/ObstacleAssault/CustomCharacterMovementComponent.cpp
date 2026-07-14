@@ -262,6 +262,7 @@ void UCustomCharacterMovementComponent::OnMovementModeChanged(EMovementMode Prev
 	if (PreviousMovementMode == MOVE_Custom && PreviousCustomMode == CMOVE_Grinding)
 	{
 		CharacterOwner->MoveIgnoreActorRemove(GrindState.GrindingPlatform.Get());
+		OnGrindEnd.ExecuteIfBound();
 	}
 
 }
@@ -555,6 +556,8 @@ void UCustomCharacterMovementComponent::OnMovementUpdated(float deltaseconds, co
 	if (GrindState.bMovingToGrindEntryPoint && (GrindState.MoveToGrindEntryTimeElapsed >= GrindState.MoveToGrindEntryPointDuration))
 	{
 		GrindState.bMovingToGrindEntryPoint = false; 
+
+		OnGrindBegin.ExecuteIfBound();
 
 
 	}
