@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "GrindEffectsComponent.generated.h"
 
-class UNiagraComponent;
+class UNiagaraComponent;
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -28,13 +28,26 @@ public:
 
 private:
 
-	UPROPERTY(EditAnywhere, Category = "GrindEffects", meta = (DisplayName = "Left Foot Grind Sparks"))
-	TObjectPtr<UNiagraComponent>LeftFootGrindSparks;
 
-	UPROPERTY(EditAnywhere, Category = "GrindEffects", meta = (DisplayName = "Right Foot Grind Sparks"))
-	TObjectPtr<UNiagraComponent>LeftFootGrindSparks;
+	UPROPERTY()
+	TObjectPtr<ACharacter> CharacterOwner; 
+
+	UPROPERTY(EditAnywhere, Category = "GrindEffects", meta = (DisplayName = "Left Foot Grind Effects"))
+	TObjectPtr<UNiagaraComponent>LeftFootGrindSparks;
+
+	UPROPERTY(EditAnywhere, Category = "GrindEffects", meta = (DisplayName = "Right Foot Grind Effects"))
+	TObjectPtr<UNiagaraComponent>RightFootGrindSparks;
 
 
+	UPROPERTY(VisibleAnywhere, Category = "GrindEffects", meta = (DisplayName = "Left Foot Grind Socket Name"))
+	FName LeftFootGrindSocketName;
+
+	UPROPERTY(VisibleAnywhere, Category = "GrindEffects", meta = (DisplayName = "Right Foot Grind Socket Name"))
+	FName RightFootGrindSocketName;
+
+private:
+
+	void AttachSparksToMesh();
 
 
 };

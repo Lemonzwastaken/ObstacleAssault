@@ -2,6 +2,8 @@
 
 
 #include "GrindEffectsComponent.h"
+#include  "NiagaraComponent.h"
+#include <GameFramework/Character.h>
 
 // Sets default values for this component's properties
 UGrindEffectsComponent::UGrindEffectsComponent()
@@ -9,6 +11,20 @@ UGrindEffectsComponent::UGrindEffectsComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+
+
+
+	LeftFootGrindSparks = CreateDefaultSubobject<UNiagaraComponent>(TEXT("LeftFootGrindSparks"));
+	LeftFootGrindSparks->bAutoActivate = false;
+
+
+	RightFootGrindSparks = CreateDefaultSubobject<UNiagaraComponent>(TEXT("RightFootGrindSparks"));
+	RightFootGrindSparks->bAutoActivate = false;
+
+	LeftFootGrindSocketName = "foot_l_GrindSocket";
+	RightFootGrindSocketName = "foot_r_GrindSocket";
+
+
 
 	// ...
 }
@@ -18,6 +34,14 @@ UGrindEffectsComponent::UGrindEffectsComponent()
 void UGrindEffectsComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CharacterOwner = CastChecked<ACharacter>(GetOwner());
+	
+	AttachSparksToMesh();
+
+	LeftFootGrindSparks->Activate();
+	RightFootGrindSparks->Activate();
+
 
 	// ...
 	
@@ -30,5 +54,20 @@ void UGrindEffectsComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+void UGrindEffectsComponent::AttachSparksToMesh()
+{
+	check(CharacterOwner && CharacterOwner->GetMesh());
+
+	if (LeftFootGrindSparks->GetAsset())
+	{
+		LeftFootGrindSparks->AttachToComponent(CharacterOwner->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, LeftFootGrindSocketName);
+	}
+
+	if (RightFootGrindSparks->GetAsset())
+	{
+		RightFootGrindSparks->AttachToComponent(CharacterOwner->GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, RightFootGrindSocketName);
+	}
 }
 
