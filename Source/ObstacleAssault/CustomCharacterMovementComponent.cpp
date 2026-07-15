@@ -372,8 +372,9 @@ bool UCustomCharacterMovementComponent::TryEnterGrind()
 
 		const FVector CharacterHeightOffset = GrindTransform.GetUnitAxis(EAxis::Z) * CharacterHalfHeight;
 		GrindTransform.AddToTranslation(CharacterHeightOffset);
-
-		if (FVector::DistSquared(CharacterLocation, GrindTransform.GetLocation()) > (GrindDetectionRadius * GrindDetectionRadiusSquared))
+		
+		
+		if (FVector::DistSquared(CharacterLocation, GrindTransform.GetLocation()) > GrindDetectionRadiusSquared)
 		{
 			continue;
 		}
