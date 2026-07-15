@@ -22,8 +22,8 @@ struct FGrindState
 	TWeakObjectPtr<USplineComponent> GrindSpline = nullptr;
 
 	FQuat GrindDetectionRotation{};
-	
-	FQuat GrindEntryRotation{};	
+
+	FQuat GrindEntryRotation{};
 
 	FVector GrindDetectionLocation{};
 
@@ -44,7 +44,7 @@ struct FGrindState
 };
 
 
-UENUM(BlueprintType, DisplayName =	"WallRunSide")
+UENUM(BlueprintType, DisplayName = "WallRunSide")
 enum EWallRunSide : uint8
 {
 	EWRS_None	UMETA(DisplayName = "None"),
@@ -67,6 +67,7 @@ DECLARE_DELEGATE(FOnCornerTurnEndSignature);
 
 DECLARE_DELEGATE(FOnGrindBeginSignature);
 DECLARE_DELEGATE(FOnGrindEndSignature);
+
 
 
 
@@ -163,13 +164,12 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = Grinding, meta = (DisplayName = "Grind Speed"))
 	float GrindSpeed = 600.0f;
-	
-	
+
+
 	UPROPERTY()
 	FGrindState GrindState{};
 
 	float GrindDetectionRadiusSquared;
-
 
 protected:
 
@@ -204,5 +204,5 @@ protected:
 
 	virtual void OnMovementUpdated(float deltaseconds, const FVector& OldLocation, const FVector& OldVelocity);
 
-	
+
 };
