@@ -130,7 +130,7 @@ void UCustomCharacterMovementComponent::InitWallRun()
 	CalcWallRunRotation(TargetRotation);
 
 	const FLatentActionInfo LatentActionInfo{ 0, INDEX_NONE, TEXT("OnWallRunInitComplete"), this };
-	static constexpr float MoveDuration = 0.2f;
+	static constexpr float MoveDuration = 0.1f;
 	UKismetSystemLibrary::MoveComponentTo(CharacterOwner->GetRootComponent(), CharacterOwner->GetActorLocation(), TargetRotation, true, true, MoveDuration, true, EMoveComponentAction::Move, LatentActionInfo);
 }
 
