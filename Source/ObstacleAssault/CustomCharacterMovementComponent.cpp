@@ -88,6 +88,41 @@ bool UCustomCharacterMovementComponent::IsGrinding() const
 	return MovementMode == MOVE_Custom && CustomMovementMode == CMOVE_Grinding;
 }
 
+void UCustomCharacterMovementComponent::TryDash()
+{
+
+	if (!CanDash())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("TryDash called but CanDash() returned falseIsFalling: %d, NumAirDashesUsed: %d, CooldownActive: %d"), IsFalling(), NumAirDashesUsed, GetWorld()->GetTimerManager().IsTimerActive(DashCoolDownTimer));
+		
+		return;
+	}
+
+	FVector InputDir = GetLastInputVector();
+	if (InputDir.IsNearlyZero())
+	{
+		InputDir = CharacterOwner->GetActorForwardVector();
+	}
+
+	InputDir = InputDir.GetSafeNormal();
+
+	DashDirection = InputDir;
+	DashTimeElapsed = 0.0f;
+	NumAirDashesUsed++;
+
+	GetWorld()->GetTimerManager().SetTimer(DashCoolDownTimer, DashCoolDownDuration, false);
+	SetMovementMode(MOVE_Custom, CMOVE_Dashing);
+
+	UE_LOG(LogTemp, Log, TEXT("Dash started. Direction: %s, AirDashesUsed: %d/%d"),*DashDirection.ToString(), NumAirDashesUsed, MaxAirDashes);
+
+
+}
+
+bool UCustomCharacterMovementComponent::IsDashing() const
+{
+	return MovementMode == MOVE_Custom && CustomMovementMode == CMOVE_Dashing;
+}
+
 
 void UCustomCharacterMovementComponent::OnCapsuleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -562,6 +597,17 @@ void UCustomCharacterMovementComponent::OnMovementUpdated(float deltaseconds, co
 
 
 	}
+
+}
+
+void UCustomCharacterMovementComponent::PhysDashing(float deltatime, int32 iterations)
+{
+}
+
+bool UCustomCharacterMovementComponent::CanDash() const
+{
+
+	return IsFalling() && (NumAirDashesUsed < MaxAirDashes) && !GetWorld()->GetTimerManager().IsTimerActive(DashCoolDownTimer);
 
 }
 
