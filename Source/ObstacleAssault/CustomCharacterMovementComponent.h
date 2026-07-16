@@ -112,6 +112,13 @@ public:
 	bool IsGrinding() const;
 
 
+	UFUNCTION(BlueprintCallable, Category = "Dash")
+	void TryDash();
+
+	UFUNCTION(BlueprintPure, Category = "Dash")
+	bool IsDashing() const;
+
+
 public:
 
 	FOnCornerTurnBeginSignature OnCornerTurnBegin;
@@ -204,5 +211,24 @@ protected:
 
 	virtual void OnMovementUpdated(float deltaseconds, const FVector& OldLocation, const FVector& OldVelocity);
 
+	void PhysDashing(float deltatime, int32 iterations);
+	bool CanDash() const;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Dash")
+	float DashSpeed = 2000.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Dash")
+	float DashDuration = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Dash")
+	float DashCoolDownDuration = 1.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Dash")
+	int32 MaxAirDashes = 1;
+
+	int32 NumAirDashesUsed = 0;
+	float DashTimeElapsed = 0.0f;
+	FVector DashDirection = FVector::ZeroVector;
+	FTimerHandle DashCoolDownTimer;
 
 };
