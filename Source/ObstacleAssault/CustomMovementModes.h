@@ -9,5 +9,7 @@ enum ECustomMovementMode : int
 
 	CMOVE_Grinding		UMETA(DisplayName = "Grinding"),
 
+	CMOVE_Dashing		UMETA(DisplayName = "Dashing"),
+
 	CMOVE_MAX		   UMETA(Hidden),
 };
