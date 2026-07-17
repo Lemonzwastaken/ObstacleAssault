@@ -9,8 +9,8 @@
 
 <img width="113" height="134" alt="image" src="https://github.com/user-attachments/assets/4b5060b5-ef74-4855-9cb0-4b152f7696b2" />
 
+Obstacle Assault is a physics and movement-based parkour rage game inspired by games like Getting Over It or Chained Together
 
-Obstacle Assault is a physics and movement-based parkour rage game inspired by games like Getting Over It or 
 ---
 
 
