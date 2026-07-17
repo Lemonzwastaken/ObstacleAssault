@@ -49,7 +49,8 @@ Here are some of the features made in C++ and Blueprints
 Through this release, I want to show how certain features of the game work. The release is a development build and not a final build, so you can see how different traces work for different types of sorts. Also, there might be performance issues in that case if you wish to check out the game, watch the YouTube video below
 The game has a lot of debugging features left over, so you can take a peek behind the game development curtain :D (this is totally not me being lazy)
 
-![Uploading image.png…]()
+<img width="643" height="659" alt="image" src="https://github.com/user-attachments/assets/c8297ff5-a4a1-4b78-9c66-65dc70df0ca4" />
+
 
 
 ## Future for this game
@@ -62,5 +63,9 @@ It was a fun journey, and I hope to get back to this project soon <3
 ## AI DECLARATION
 
 AI has been used in this game to find errors in code, which I was unable to find, and make small modifications like print checks, etc. All mechanisms have been written by me only and only small changes as well as fixing errors have been done using AI
+
+## Liscense
+
+Feel free to use the project code as you like. there are no assets tho so that would be a problem rest all the blueprints and C++ code is there :D
 
 *Built in Unreal Engine 5.7.*
