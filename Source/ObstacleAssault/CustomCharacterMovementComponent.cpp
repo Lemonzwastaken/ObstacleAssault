@@ -60,7 +60,7 @@ bool UCustomCharacterMovementComponent::CanAttemptJump() const
 		return bWallRunInitiated;
 	}
 
-	return Super::CanAttemptJump() || IsGrinding();
+	return Super::CanAttemptJump() || IsGrinding() || IsDashing();
 }
 
 
@@ -88,14 +88,14 @@ bool UCustomCharacterMovementComponent::IsGrinding() const
 	return MovementMode == MOVE_Custom && CustomMovementMode == CMOVE_Grinding;
 }
 
-void UCustomCharacterMovementComponent::TryDash()
+bool UCustomCharacterMovementComponent::TryDash()
 {
 
 	if (!CanDash())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("TryDash called but CanDash() returned falseIsFalling: %d, NumAirDashesUsed: %d, CooldownActive: %d"), IsFalling(), NumAirDashesUsed, GetWorld()->GetTimerManager().IsTimerActive(DashCoolDownTimer));
 		
-		return;
+		return false;
 	}
 
 	FVector InputDir = GetLastInputVector();
@@ -113,8 +113,11 @@ void UCustomCharacterMovementComponent::TryDash()
 	GetWorld()->GetTimerManager().SetTimer(DashCoolDownTimer, DashCoolDownDuration, false);
 	SetMovementMode(MOVE_Custom, CMOVE_Dashing);
 
+	OnDashStarted.Broadcast();
+
 	UE_LOG(LogTemp, Log, TEXT("Dash started. Direction: %s, AirDashesUsed: %d/%d"),*DashDirection.ToString(), NumAirDashesUsed, MaxAirDashes);
 
+	return true;
 
 }
 

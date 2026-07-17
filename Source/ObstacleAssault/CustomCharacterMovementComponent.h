@@ -113,10 +113,17 @@ public:
 
 
 	UFUNCTION(BlueprintCallable, Category = "Dash")
-	void TryDash();
+	bool TryDash();
 
 	UFUNCTION(BlueprintPure, Category = "Dash")
 	bool IsDashing() const;
+
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDashStarted);
+
+	UPROPERTY(BlueprintAssignable, Category = "Dash")
+	FOnDashStarted OnDashStarted;
+
+
 
 
 public:
