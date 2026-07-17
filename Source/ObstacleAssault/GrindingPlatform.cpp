@@ -36,9 +36,10 @@ void AGrindingPlatform::OnConstruction(const FTransform& Transform)
 
 	GrindSplines.RemoveAll([this](TObjectPtr<USplineComponent> SplineComp) {
 
-		return SplineComp && !OwnsComponent(SplineComp);
-	
+		return SplineComp && SplineComp->GetOwner() != this;
+
 	});
+
 }
 
 

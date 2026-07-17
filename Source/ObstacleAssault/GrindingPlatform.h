@@ -24,7 +24,7 @@ public:
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 
-#ifdef WITH_EDITOR
+#if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangeEvent) override;
 #endif
 
