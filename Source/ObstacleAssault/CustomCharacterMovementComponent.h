@@ -238,4 +238,7 @@ protected:
 	FVector DashDirection = FVector::ZeroVector;
 	FTimerHandle DashCoolDownTimer;
 
+	bool IsWallRunnableWallNearby() const;
+
+
 };

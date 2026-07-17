@@ -646,7 +646,39 @@ void UCustomCharacterMovementComponent::PhysDashing(float deltatime, int32 itera
 bool UCustomCharacterMovementComponent::CanDash() const
 {
 
-	return IsFalling() && (NumAirDashesUsed < MaxAirDashes) && !GetWorld()->GetTimerManager().IsTimerActive(DashCoolDownTimer);
+	return IsFalling() && (NumAirDashesUsed < MaxAirDashes) && !GetWorld()->GetTimerManager().IsTimerActive(DashCoolDownTimer) && !IsWallRunnableWallNearby();
+
+}
+
+bool UCustomCharacterMovementComponent::IsWallRunnableWallNearby() const
+{
+	const FVector TraceStart = CharacterOwner->GetActorLocation();
+	const FVector Forward = CharacterOwner->GetActorForwardVector();
+	const FVector Right = CharacterOwner->GetActorRightVector();
+
+	TArray<FVector> TraceDirection =
+	{
+		Forward,
+		-Forward,
+		Right,
+		-Right
+	};
+
+	for (const FVector& Direction : TraceDirection)
+	{
+		FHitResult HitResult{};
+		const FVector TraceEnd = TraceStart + Direction * WallSearchTraceDistance;
+
+		GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility);
+
+		if (HitResult.bBlockingHit && Cast<IWallRunnableInterface>(HitResult.GetActor()))
+		{
+			return true;
+		}
+
+	}
+
+	return false;
 
 }
 
