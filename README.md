@@ -48,7 +48,8 @@ Here are some of the features made in C++ and Blueprints
 
 Through this release, I want to show how certain features of the game work. The release is a development build and not a final build, so you can see how different traces work for different types of sorts. Also, there might be performance issues in that case if you wish to check out the game, watch the YouTube video below
 
-[![DevelopmentBuild](https://youtube.com)](https://youtu.be/TqL-6thSbOI)
+[![Watch the video](https://youtube.com)](https://youtu.be)
+
 
 
 
