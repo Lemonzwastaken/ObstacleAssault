@@ -250,6 +250,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Dash")
 	TObjectPtr<UAnimMontage> DashMontage;
 
+	bool IsWallRunnableWallInDirection(const FVector& Direction) const;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Dash")
+	float PostDashWallRunLockoutDuration = 0.5f;
+
+	FTimerHandle PostDashWallRunLockoutTimer;
 
 
 };

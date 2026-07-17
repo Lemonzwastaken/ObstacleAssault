@@ -113,6 +113,8 @@ bool UCustomCharacterMovementComponent::TryDash()
 
 	GetWorld()->GetTimerManager().SetTimer(DashCoolDownTimer, DashCoolDownDuration, false);
 	SetMovementMode(MOVE_Custom, CMOVE_Dashing);
+	GetWorld()->GetTimerManager().SetTimer(PostDashWallRunLockoutTimer, PostDashWallRunLockoutDuration, false);
+
 
 	if (DashSound)
 	{
@@ -144,6 +146,10 @@ bool UCustomCharacterMovementComponent::IsDashing() const
 
 void UCustomCharacterMovementComponent::OnCapsuleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+
+	UE_LOG(LogTemp, Warning, TEXT("OnCapsuleHit fired. MovementMode: %d, CustomMovementMode: %d, CanWallRun: %d, IsWallRunnable: %d"),
+		(int32)MovementMode, (int32)CustomMovementMode, CanWallRun(), Cast<IWallRunnableInterface>(OtherActor) != nullptr);
+
 	if (OtherActor == PrevNonWallRunnableActor) return;
 
 	if (CanWallRun())
@@ -162,13 +168,17 @@ void UCustomCharacterMovementComponent::OnCapsuleHit(UPrimitiveComponent* HitCom
 
 bool UCustomCharacterMovementComponent::CanWallRun() const
 {
-
-	return (bAutoWallRun||bWantsToWallRun) && IsFalling() && !(GetWorld()->GetTimerManager().IsTimerActive(WallRunCoolDownTimer));
-
+	return (bAutoWallRun || bWantsToWallRun)
+		&& IsFalling()
+		&& !(GetWorld()->GetTimerManager().IsTimerActive(WallRunCoolDownTimer))
+		&& !(GetWorld()->GetTimerManager().IsTimerActive(PostDashWallRunLockoutTimer));
 }
+
 
 void UCustomCharacterMovementComponent::InitWallRun()
 {
+	UE_LOG(LogTemp, Warning, TEXT("InitWallRun called. Velocity before: %s"), *Velocity.ToString());
+
 	WallRunControlInputVector = {};
 	bWallRunInitiated = false;
 	bIsTurningAroundCorner = false;
@@ -182,9 +192,8 @@ void UCustomCharacterMovementComponent::InitWallRun()
 	FRotator TargetRotation{};
 	CalcWallRunRotation(TargetRotation);
 
-	const FLatentActionInfo LatentActionInfo{ 0, INDEX_NONE, TEXT("OnWallRunInitComplete"), this };
-	static constexpr float MoveDuration = 0.1f;
-	UKismetSystemLibrary::MoveComponentTo(CharacterOwner->GetRootComponent(), CharacterOwner->GetActorLocation(), TargetRotation, true, true, MoveDuration, true, EMoveComponentAction::Move, LatentActionInfo);
+	CharacterOwner->SetActorRotation(TargetRotation);
+	OnWallRunInitComplete();
 }
 
 void UCustomCharacterMovementComponent::CalcWallRunRotation(FRotator& OutWallRunRotation)
@@ -237,6 +246,10 @@ void UCustomCharacterMovementComponent::PhysCustom(float deltatime, int32 Iterat
 
 void UCustomCharacterMovementComponent::PhysWallRunning(float deltatime, int32 Iterations)
 {
+
+	UE_LOG(LogTemp, Warning, TEXT("PhysWallRunning tick. bWallRunInitiated: %d, bIsTurningAroundCorner: %d"), bWallRunInitiated, bIsTurningAroundCorner);
+
+
 	if (!bWallRunInitiated || bIsTurningAroundCorner || deltatime < MIN_TICK_TIME) return;
 
 
@@ -320,6 +333,18 @@ void UCustomCharacterMovementComponent::OnMovementModeChanged(EMovementMode Prev
 	{
 		CharacterOwner->MoveIgnoreActorRemove(GrindState.GrindingPlatform.Get());
 		OnGrindEnd.ExecuteIfBound();
+	}
+
+	if (PreviousMovementMode == MOVE_Custom && PreviousCustomMode == CMOVE_Dashing)
+	{
+		if (DashMontage)
+		{
+			if (UAnimInstance* AnimInstance = CharacterOwner->GetMesh()->GetAnimInstance())
+			{
+				AnimInstance->Montage_Stop(0.3f, DashMontage);
+			}
+		}
+
 	}
 
 	if (MovementMode == MOVE_Walking)
@@ -629,10 +654,34 @@ void UCustomCharacterMovementComponent::OnMovementUpdated(float deltaseconds, co
 
 }
 
-void UCustomCharacterMovementComponent::PhysDashing(float deltatime, int32 iterations)
+void UCustomCharacterMovementComponent::PhysDashing(float deltatime, int32 Iterations)
 {
-
 	if (deltatime < MIN_TICK_TIME) return;
+
+	if (IsWallRunnableWallInDirection(DashDirection))
+	{
+		if (DashMontage)
+		{
+			if (UAnimInstance* AnimInstance = CharacterOwner->GetMesh()->GetAnimInstance())
+			{
+				const bool bWasPlaying = AnimInstance->Montage_IsPlaying(DashMontage);
+				AnimInstance->Montage_Stop(0.1f, DashMontage);
+				UE_LOG(LogTemp, Warning, TEXT("Montage_Stop called. Was playing before: %d, Is playing immediately after: %d"),
+					bWasPlaying, AnimInstance->Montage_IsPlaying(DashMontage));
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("AnimInstance is null, cannot stop DashMontage"));
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("DashMontage is null"));
+		}
+
+		SetMovementMode(MOVE_Falling);
+		return;
+	}
 
 	DashTimeElapsed += deltatime;
 
@@ -640,7 +689,6 @@ void UCustomCharacterMovementComponent::PhysDashing(float deltatime, int32 itera
 	{
 		SetMovementMode(MOVE_Falling);
 		return;
-
 	}
 
 	Velocity = DashDirection * DashSpeed;
@@ -653,9 +701,6 @@ void UCustomCharacterMovementComponent::PhysDashing(float deltatime, int32 itera
 	{
 		SetMovementMode(MOVE_Falling);
 	}
-
-
-
 }
 
 bool UCustomCharacterMovementComponent::CanDash() const
@@ -695,5 +740,17 @@ bool UCustomCharacterMovementComponent::IsWallRunnableWallNearby() const
 
 	return false;
 
+}
+
+bool UCustomCharacterMovementComponent::IsWallRunnableWallInDirection(const FVector& Direction) const
+{
+
+	const FVector TraceStart = CharacterOwner->GetActorLocation();
+	const FVector TraceEnd = TraceStart + Direction.GetSafeNormal() * WallSearchTraceDistance;
+
+	FHitResult HitResult{};
+	GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility);
+
+	return HitResult.bBlockingHit && Cast<IWallRunnableInterface>(HitResult.GetActor()) != nullptr;
 }
 
