@@ -206,6 +206,10 @@ void UCustomCharacterMovementComponent::PhysCustom(float deltatime, int32 Iterat
 		PhysGrinding(deltatime, Iterations);
 		break;
 
+	case CMOVE_Dashing:
+
+		PhysDashing(deltatime, Iterations);
+		break;
 
 	default:
 		break;
@@ -602,6 +606,31 @@ void UCustomCharacterMovementComponent::OnMovementUpdated(float deltaseconds, co
 
 void UCustomCharacterMovementComponent::PhysDashing(float deltatime, int32 iterations)
 {
+
+	if (deltatime < MIN_TICK_TIME) return;
+
+	DashTimeElapsed += deltatime;
+
+	if (DashTimeElapsed >= DashDuration)
+	{
+		SetMovementMode(MOVE_Falling);
+		return;
+
+	}
+
+	Velocity = DashDirection * DashSpeed;
+
+	FHitResult HitResult{};
+	const FVector Delta = Velocity * deltatime;
+	SafeMoveUpdatedComponent(Delta, CharacterOwner->GetActorRotation(), true, HitResult);
+
+	if (HitResult.bBlockingHit)
+	{
+		SetMovementMode(MOVE_Falling);
+	}
+
+
+
 }
 
 bool UCustomCharacterMovementComponent::CanDash() const
