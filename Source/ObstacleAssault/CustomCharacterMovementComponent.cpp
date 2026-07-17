@@ -304,6 +304,13 @@ void UCustomCharacterMovementComponent::OnMovementModeChanged(EMovementMode Prev
 		OnGrindEnd.ExecuteIfBound();
 	}
 
+	if (MovementMode == MOVE_Walking)
+	{
+		NumAirDashesUsed = 0;
+	}
+
+
+
 }
 
 void UCustomCharacterMovementComponent::HandleWallRunCorner(const ECornerType CornerType)
