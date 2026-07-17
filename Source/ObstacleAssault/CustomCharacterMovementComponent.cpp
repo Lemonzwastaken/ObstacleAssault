@@ -626,7 +626,16 @@ void UCustomCharacterMovementComponent::PhysGrinding(float deltatime, int32 Iter
 
 	if (HitResult.bBlockingHit)
 	{
-		SetMovementMode(MOVE_Walking);
+		const FVector PushOutDirection = CharacterOwner->GetActorRightVector();
+		const float PushOutStrength = 2.0f;	
+
+		const FVector PushOut = PushOutDirection * CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleRadius() * PushOutStrength;
+		SafeMoveUpdatedComponent(PushOut, UpdatedComponent->GetComponentQuat(), true, HitResult);
+
+		Velocity += PushOutDirection * 300.0f;
+
+
+		SetMovementMode(MOVE_Falling);
 	}
 	else if (!bShouldContinueGrinding)
 	{
