@@ -9,6 +9,7 @@
 #include <Kismet/KismetSystemLibrary.h>
 #include <Components/SplineComponent.h>
 #include "GrindingPlatform.h"
+#include <Kismet/GameplayStatics.h>
 #include <GameFramework/Character.h>
 #include <Components/CapsuleComponent.h>
 
@@ -112,6 +113,20 @@ bool UCustomCharacterMovementComponent::TryDash()
 
 	GetWorld()->GetTimerManager().SetTimer(DashCoolDownTimer, DashCoolDownDuration, false);
 	SetMovementMode(MOVE_Custom, CMOVE_Dashing);
+
+	if (DashSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, DashSound, CharacterOwner->GetActorLocation());
+	}
+
+	if (DashMontage)
+	{
+		if (UAnimInstance* AnimInstance = CharacterOwner->GetMesh()->GetAnimInstance())
+		{
+			AnimInstance->Montage_Play(DashMontage);
+		}
+	}
+
 
 	OnDashStarted.Broadcast();
 

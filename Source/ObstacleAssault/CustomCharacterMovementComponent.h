@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Sound/SoundBase.h"
+#include "Animation/AnimMontage.h"
 #include "CustomCharacterMovementComponent.generated.h"
+
 
 
 class AGrindingPlatform;
@@ -239,6 +242,14 @@ protected:
 	FTimerHandle DashCoolDownTimer;
 
 	bool IsWallRunnableWallNearby() const;
+
+
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	TObjectPtr<USoundBase> DashSound;
+
+	UPROPERTY(EditAnywhere, Category = "Dash")
+	TObjectPtr<UAnimMontage> DashMontage;
+
 
 
 };
