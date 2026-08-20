@@ -24,7 +24,7 @@ A rage-inducing platformer built in Unreal Engine 5.
 3. If prompted, allow the engine to generate project files and compile the C++ modules.
 4. Press **Play** in the editor to run the project.
 
-**IMPORTANT NOTE**: Due to Unreal Engine licenses and git LFS limitations, I am required not to upload any assets. Before playing the game, please replace missing assets with your own assets wherever required. The game will break without replacing them.
+**IMPORTANT NOTE**: Due to Unreal Engine licenses and git LFS limitations, I am required not to upload any assets. Before playing the game please replace all blueprints with your own assets. The game will break without replacing them.
 
 ## Project Structure
 
@@ -38,7 +38,6 @@ A rage-inducing platformer built in Unreal Engine 5.
 ## Notes on Implementation
 
 The project combines C++ with Blueprints for gameplay logic. No public releases are available yet.
-Only a demo release is available
 
 ## License
 
